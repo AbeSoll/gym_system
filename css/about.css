@@ -1,0 +1,380 @@
+/* Hero Section */
+.about-hero-section {
+    position: relative; /* Ensure that the overlay is confined to this section */
+    background: url('../images/about-hero.jpg') no-repeat center center/cover;
+    height: 60vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: white;
+    padding: 20px;
+    z-index: 1; /* Place below navbar */
+}
+
+.about-hero-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0; /* Ensures the overlay spans the entire width */
+    bottom: 0; /* Ensures the overlay spans the entire height */
+    background: rgba(0, 0, 0, 0.5); /* Black overlay with 50% opacity */
+    z-index: 0; /* Keeps the overlay behind the text */
+}
+
+.about-hero-section h1,
+.about-hero-section p {
+    position: relative; /* Ensures the text stays above the overlay */
+    z-index: 1; /* Keeps text above the overlay */
+    text-shadow: 0px 4px 6px rgba(0, 0, 0, 0.6); /* Enhance text readability */
+}
+
+.about-hero-content h1 {
+    font-size: 48px;
+    margin-bottom: 20px;
+}
+
+.about-hero-content p {
+    font-size: 18px;
+    margin-bottom: 20px;
+}
+
+/* About Intro Section */
+.about-intro {
+    background-color: #f9f9f9;
+    padding: 50px 20px;
+}
+
+.intro-container {
+    display: flex; /* Use Flexbox for side-by-side alignment */
+    justify-content: space-between; /* Space between Mission and Vision */
+    gap: 20px; /* Add spacing between sections */
+    align-items: stretch; /* Make all child items equal in height */
+    max-width: 1200px; /* Limit the width of the section */
+    margin: 0 auto; /* Center the container */
+}
+
+.mission,
+.vision {
+    flex: 1; /* Ensure both sections take equal width */
+    padding: 20px; /* Add padding inside each section */
+    background: white; /* Optional background color for each section */
+    border-radius: 10px; /* Rounded corners for a modern look */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+    text-align: center; /* Center align content */
+    display: flex; /* Flexbox for internal content alignment */
+    flex-direction: column; /* Stack the title and content vertically */
+    justify-content: center; /* Center content vertically */
+}
+
+.mission h2,
+.vision h2 {
+    font-size: 28px;
+    margin-bottom: 15px;
+    text-align: center; /* Center-align the title */
+}
+
+.mission p,
+.vision p {
+    font-size: 18px;
+    color: #555;
+    line-height: 1.6; /* Improve readability */
+    text-align: justify; /* Align text for a cleaner look */
+    flex: 1; /* Ensures both boxes grow equally */
+}
+
+/* About Values */
+.about-values {
+    text-align: center;
+    padding: 50px 20px;
+}
+
+.values-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+}
+
+.value-card {
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    text-align: center;
+    max-width: 300px;
+    flex: 1;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.value-card i {
+    font-size: 40px;
+    color: #007bff;
+    margin-bottom: 10px;
+}
+
+.value-card h3 {
+    margin: 10px 0;
+}
+
+.value-card p {
+    color: #555;
+}
+
+.value-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* Team Section */
+.about-team {
+    text-align: center;
+    padding: 50px 20px;
+    background-color: #f9f9f9;
+}
+
+.team-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+}
+
+.team-card {
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    text-align: center;
+    max-width: 250px;
+    flex: 1;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.team-card img {
+    border-radius: 50%;
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    margin-bottom: 10px;
+}
+
+.team-card h3 {
+    margin: 10px 0;
+}
+
+.team-card p {
+    color: #555;
+}
+
+.team-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* Testimonials Section */
+.about-testimonials {
+    background-color: #f9f9f9;
+    padding: 50px 20px;
+    text-align: center;
+    overflow: hidden; /* Prevent overflow */
+    position: relative;
+}
+
+.about-testimonials h2 {
+    font-size: 32px;
+    margin-bottom: 20px;
+}
+
+/* Testimonial Wrapper for Scrolling */
+.testimonial-wrapper {
+    display: flex;
+    justify-content: flex-start;
+    gap: 20px; /* Space between cards */
+    animation: scroll-testimonials 30s linear infinite; /* Smooth scrolling animation */
+}
+
+.testimonial-card {
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    width: 300px;
+    flex-shrink: 0; /* Prevent shrinking of cards */
+    text-align: left;
+    transition: transform 0.3s ease, box-shadow 0.3s ease; /* Smooth transition for hover effect */
+}
+
+.testimonial-card:hover {
+    transform: scale(1.1); /* Smoothly enlarge the hovered card */
+    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.2); /* More prominent shadow on hover */
+}
+
+.testimonial-card p {
+    font-size: 16px;
+    color: #555;
+}
+
+.testimonial-card .customer-name {
+    font-weight: bold;
+    margin-top: 10px;
+    font-size: 18px;
+    color: #333;
+}
+
+/* Keyframe for Infinite Scrolling Animation */
+@keyframes scroll-testimonials {
+    0% {
+        transform: translateX(0); /* Start from the beginning */
+    }
+    100% {
+        transform: translateX(-100%); /* Move all testimonials off-screen to the left */
+    }
+}
+
+/* Footer CTA */
+.about-footer {
+    text-align: center;
+    padding: 50px 20px;
+    background-color: #007bff;
+    color: white;
+}
+
+.about-footer h2 {
+    margin-bottom: 20px;
+}
+
+.about-footer p {
+    font-size: 18px;
+    margin-bottom: 20px;
+}
+
+.about-footer .btn-primary {
+    display: inline-block;
+    padding: 10px 20px;
+    background: white;
+    color: #007bff;
+    border-radius: 5px;
+    text-decoration: none;
+    font-size: 16px;
+}
+
+.about-footer .btn-primary:hover {
+    background: #e0e0e0;
+}
+
+/* For Tablets and Small Screens */
+@media (max-width: 992px) {
+    /* Adjust hero section */
+    .about-hero-section {
+        height: 50vh; /* Reduce height for smaller screens */
+        padding: 10px;
+    }
+
+    .about-hero-content h1 {
+        font-size: 36px; /* Smaller font size */
+    }
+
+    .about-hero-content p {
+        font-size: 16px;
+    }
+
+    /* Mission and Vision Sections */
+    .intro-container {
+        flex-direction: column; /* Stack sections vertically */
+        gap: 30px; /* Increase gap for vertical layout */
+    }
+
+    .mission, .vision {
+        padding: 15px;
+    }
+
+    .mission h2, .vision h2 {
+        font-size: 24px;
+    }
+
+    .mission p, .vision p {
+        font-size: 16px;
+    }
+
+    /* Values and Teams */
+    .values-container, .team-container {
+        gap: 15px;
+    }
+
+    .value-card, .team-card {
+        max-width: 90%; /* Full width with some padding */
+    }
+}
+
+/* For Mobile Devices */
+@media (max-width: 576px) {
+    /* Adjust hero section further */
+    .about-hero-section {
+        height: 40vh;
+    }
+
+    .about-hero-content h1 {
+        font-size: 28px; /* Even smaller font size */
+    }
+
+    .about-hero-content p {
+        font-size: 14px;
+    }
+
+    /* Mission and Vision */
+    .intro-container {
+        flex-direction: column; /* Stack vertically */
+        gap: 20px; /* Adjust gap */
+    }
+
+    .mission, .vision {
+        padding: 10px;
+    }
+
+    .mission h2, .vision h2 {
+        font-size: 20px;
+    }
+
+    .mission p, .vision p {
+        font-size: 14px;
+    }
+
+    /* Values and Teams */
+    .values-container, .team-container {
+        flex-direction: column; /* Stack cards vertically */
+        gap: 10px;
+    }
+
+    .value-card, .team-card {
+        max-width: 100%; /* Full width */
+    }
+
+    .team-card img {
+        width: 100px; /* Smaller images */
+        height: 100px;
+    }
+
+    /* Testimonials */
+    .testimonial-wrapper {
+        flex-wrap: wrap; /* Stack testimonials vertically */
+        animation: none; /* Disable animation for smaller screens */
+    }
+
+    .testimonial-card {
+        width: 100%; /* Full width */
+        margin-bottom: 20px;
+    }
+}
+
+/* Global Adjustments for All Screens */
+@media (max-width: 1200px) {
+    .intro-container {
+        max-width: 95%; /* Adjust container width for tablets */
+    }
+
+    .values-container, .team-container {
+        gap: 15px; /* Adjust gap for smaller screens */
+    }
+}

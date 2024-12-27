@@ -1,0 +1,202 @@
+/* Center Form Wrapper */
+.form-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 120vh; /* Takes full height minus header/footer */
+    background: url('../images/register-background.jpg') no-repeat center center/cover;
+    position: relative; /* Ensure the overlay is confined to this section */
+}
+
+.form-wrapper::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5); /* Black overlay with 50% opacity */
+    z-index: 0; /* Keeps the overlay behind the form */
+}
+
+/* Styles for Register Page */
+.form-container {
+    position: relative; /* Ensure the form stays above the overlay */
+    z-index: 1; /* Keeps the form above the overlay */
+    max-width: 400px;
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    width: 90%; /* Ensures responsive layout for small screens */
+}
+
+.form-container:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
+}
+
+.form-container h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 24px;
+    font-weight: bold;
+    color: #007bff;
+}
+
+.form-container input,
+.form-container textarea {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    box-sizing: border-box;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.form-container input:focus,
+.form-container textarea:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+.form-container button {
+    width: 100%;
+    padding: 12px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.form-container button:hover {
+    background-color: #0056b3;
+    transform: scale(1.02);
+}
+
+.success {
+    color: green;
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+.error {
+    color: red;
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+.checkbox-container {
+    display: flex;
+    align-items: center; /* Vertically align items */
+    margin-bottom: 15px;
+    gap: 10px; /* Add spacing between the checkbox and text */
+}
+
+.checkbox-container label {
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+    color: #555;
+    gap: 10px; /* Space between checkbox and text */
+}
+
+.checkbox-container input[type="checkbox"] {
+    margin: 0; /* Remove default margin */
+    accent-color: #007bff; /* Style the checkbox color */
+    width: 18px; /* Standard checkbox size */
+    height: 18px;
+}
+
+.checkbox-container a {
+    color: #007bff;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.checkbox-container a:hover {
+    text-decoration: underline;
+}
+
+.gender-selection {
+    display: flex;
+    align-items: default;
+    gap: 15px; /* Space between 'Gender:' label and options */
+    margin-bottom: 15px;
+}
+
+.gender-selection label {
+    font-size: 14px;
+    color: #555;
+}
+
+.gender-options {
+    display: flex;
+    align-items: default;
+    gap: 10px; /* Space between radio buttons and their labels */
+}
+
+.gender-options input[type="radio"] {
+    margin-right: 5px; /* Space between the radio button and the text */
+    accent-color: #007bff; /* Custom color for the radio button */
+}
+
+
+.login-link {
+    margin-top: 10px;
+    font-size: 14px;
+    color: #555;
+}
+
+.login-link a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+.login-link a:hover {
+    text-decoration: underline;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .form-container {
+        padding: 20px;
+    }
+
+    .form-container h2 {
+        font-size: 20px;
+    }
+
+    .form-container input,
+    .form-container textarea {
+        padding: 10px;
+    }
+
+    .form-container button {
+        padding: 10px;
+    }
+}
+
+@media (max-width: 576px) {
+    .form-container {
+        padding: 15px;
+    }
+
+    .form-container h2 {
+        font-size: 18px;
+    }
+
+    .form-container input,
+    .form-container textarea {
+        padding: 8px;
+    }
+
+    .form-container button {
+        padding: 8px;
+    }
+}
+

@@ -1,0 +1,360 @@
+/* Admin Dashboard Styles */
+body {
+    font-family: Poppins, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f9f9f9;
+}
+
+.dashboard-container {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* Navbar */
+.navbar {
+    background-color: #007bff;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 10px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.navbar-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Navbar Updates */
+.navbar .profile {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-right: 20px; /* Ensure space from the edge */
+}
+
+.navbar .profile a {
+    color: white;
+    text-decoration: none;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: color 0.3s;
+}
+
+.navbar .profile a:hover {
+    color: #e0e0e0;
+}
+
+/* Add specific hover styles for profile and logout links */
+.navbar .profile a[href="profile.php"]:hover {
+    color: black; /* Darken color for profile link */
+}
+
+.dashboard-container .sidebar a[href="../auth/logout.php"]:hover {
+    color: rgb(255, 39, 39); /* Darken color for logout link */
+}
+
+.hamburger {
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 30px;
+    height: 25px;
+    transition: all 0.3s ease;
+}
+
+.hamburger .bar {
+    height: 3px;
+    width: 100%;
+    background-color: white;
+    border-radius: 2px;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+/* For 'X' animation */
+.hamburger.toggle .bar:nth-child(1) {
+    transform: rotate(45deg) translateY(10px);
+}
+.hamburger.toggle .bar:nth-child(2) {
+    opacity: 0;
+}
+.hamburger.toggle .bar:nth-child(3) {
+    transform: rotate(-45deg) translateY(-10px);
+}
+
+
+.logo {
+    font-size: 19px;
+    font-weight: bold;
+    color: white;
+    text-decoration: none;
+}
+
+.profile {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+.profile a {
+    color: white;
+    text-decoration: none;
+    font-size: 16px;
+    transition: color 0.3s;
+}
+
+.profile a:hover {
+    color: #e0e0e0;
+}
+
+/* Sidebar */
+.sidebar {
+    position: fixed; /* Fix the sidebar position */
+    left: 0;
+    top: 0;
+    height: 100vh;
+    width: 250px;
+    background-color: #007bff;
+    color: white;
+    overflow: hidden;
+    padding: 20px;
+    transition: transform 0.3s ease; /* Smooth transition for sidebar */
+    transform: translateX(-100%); /* Hide initially */
+    z-index: 1; /* Sidebar above everything else */
+}
+
+.sidebar.show {
+    transform: translateX(0); /* Show sidebar */
+}
+
+.sidebar h3 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.sidebar ul {
+    list-style: none;
+    padding: 0;
+}
+
+.sidebar ul li {
+    margin: 15px 0;
+}
+
+.sidebar ul li a {
+    text-decoration: none;
+    color: white;
+    font-size: 18px;
+    display: block;
+    padding: 10px;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+}
+
+.sidebar ul li a:hover {
+    background-color: #0056b3;
+}
+
+.main-content {
+    margin-top: 5px; /* Avoid overlapping with navbar */
+    padding: 20px;
+    transition: margin-left 0.3s ease;
+}
+
+
+.main-content.expanded {
+    margin-left: 0;
+}
+
+.main-content {
+    flex: 1;
+    padding: 70px 40px;
+    background-color: #f9f9f9;
+}
+
+h2 {
+    font-size: 20px;
+    margin-bottom: 20px;
+}
+
+/* Dashboard Layout */
+.dashboard-container {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    padding: 20px;
+}
+
+.top-section {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr; /* Three equal columns */
+    gap: 30px;
+}
+
+.top-section .box {
+    background: #fff;
+    padding: 20px;
+    border-radius: 20px;
+    box-shadow: 0 7px 25px rgba(0, 0, 0, 0.08);
+    text-align: center;
+}
+
+.top-section .box canvas {
+    max-height: 200px;
+    width: 100%;
+}
+
+.top-section h3 {
+    font-size: 15px; /* Resize font for h3 in top section */
+}
+
+.top-section recent-members {
+    font-size: 15px;
+}
+
+.recent-members {
+    overflow-y: auto;
+    max-height: 300px;
+}
+
+.recent-members h3 {
+    font-size: 15px; /* Resize font for "Recent Active Memberships" */
+    color: #333;
+    margin-bottom: 15px;
+}
+
+.recent-members ul {
+    list-style: none;
+    padding: 0;
+}
+
+.recent-members li {
+    padding: 10px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.recent-members li:last-child {
+    border-bottom: none;
+}
+
+.bottom-section {
+    grid-column: span 3; /* Makes the line chart span all columns */
+    background: #fff;
+    padding: 20px;
+    border-radius: 20px;
+    box-shadow: 0 7px 25px rgba(0, 0, 0, 0.08);
+    text-align: center;
+}
+
+.bottom-section h3 {
+    font-size: 15px; /* Resize font for "Monthly Payments" */
+}
+
+.bottom-section canvas {
+    max-height: 300px;
+    width: 100%;
+}
+
+
+/* content kotak kotak kat atas */
+.stats {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.stat-card {
+    background: white;
+    flex: 1;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.stat-card h3 {
+    font-size: 15px;
+    color: #555;
+    margin-bottom: 10px;
+}
+
+.stat-card p {
+    font-size: 24px;
+    color: #1500ff;
+}
+
+footer {
+    text-align: center;
+    padding: 10px 0;
+    background-color: #007bff;
+    color: white;
+}
+
+
+/* Logout Confirmation Popup */
+.confirmation-popup {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.confirmation-popup .popup-content {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.confirmation-popup .popup-content p {
+    margin-bottom: 20px;
+    font-size: 18px;
+}
+
+.confirmation-popup .popup-content button {
+    margin: 0 10px;
+    padding: 10px 20px;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.confirmation-popup .popup-content button#confirm-yes {
+    background-color: #007bff;
+    color: white;
+}
+
+.confirmation-popup .popup-content button#confirm-yes:hover {
+    background-color: #0056b3;
+}
+
+.confirmation-popup .popup-content button#confirm-no {
+    background-color: #ccc;
+    color: black;
+}
+
+.confirmation-popup .popup-content button#confirm-no:hover {
+    background-color: #999;
+}
