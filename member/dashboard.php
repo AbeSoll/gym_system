@@ -6,6 +6,7 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'member') {
     header('Location: ../auth/login.php');
     exit();
 }
+
 // Fetch member details
 $member_id = $_SESSION['member_id'];
 $member_query = $conn->query("SELECT * FROM members WHERE id = $member_id");
@@ -21,9 +22,11 @@ $package_query = $conn->query("
 ");
 $active_package = $package_query->fetch_assoc();
 
-// Fetch payment history count
-$payment_query = $conn->query("SELECT COUNT(*) AS total_payments FROM payments WHERE member_id = $member_id");
-$total_payments = $payment_query->fetch_assoc()['total_payments'];
+// Fetch payment history count and total amount paid
+$payment_query = $conn->query("SELECT COUNT(*) AS total_payments, SUM(amount) AS total_amount FROM payments WHERE member_id = $member_id");
+$payment_data = $payment_query->fetch_assoc();
+$total_payments = $payment_data['total_payments'] ?? 0;
+$total_amount = $payment_data['total_amount'] ?? 0;
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -31,58 +34,33 @@ $total_payments = $payment_query->fetch_assoc()['total_payments'];
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Member Dashboard</title>
-    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/member.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        body{
-            font-family: 'Poppins', sans-serif;
-        }
-        .dashboard-container {
-            padding: 20px;
-        }
-        .card {
-            background: white;
-            padding: 20px;
-            margin: 15px 0;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            border-radius: 10px;
-        }
-        .card h3 {
-            font-size: 20px;
-            margin-bottom: 10px;
-        }
-        .card p {
-            font-size: 16px;
-        }
-        .actions {
-            display: flex;
-            justify-content: space-around;
-            margin-top: 20px;
-        }
-        .actions a {
-            text-decoration: none;
-            padding: 10px 20px;
-            color: white;
-            background-color: #007bff;
-            border-radius: 5px;
-            transition: background-color 0.3s;
-        }
-        .actions a:hover {
-            background-color: #0056b3;
-        }
-    </style>
 </head>
 <body>
 <header>
     <nav class="navbar">
-        <div class="navbar-left">
-            <a href="dashboard.php" class="logo">Member Dashboard</a>
+        <a href="/gym_system/member/index.php" class="logo">Gym Membership</a>
+        <div class="hamburger" id="hamburger-menu">
+            <span class="bar"></span>
+            <span class="bar"></span>
+            <span class="bar"></span>
         </div>
-        <div class="profile">
-            <a href="profile.php"><i class="fas fa-user"></i> My Profile</a>
-            <a href="../auth/logout.php"><i class="fas fa-sign-out-alt"></i> Logout</a>
-        </div>
+        <ul class="nav-links" id="nav-links">
+            <li><a href="/gym_system/member/index.php"><i class="fa fa-home"></i> Home</a></li>
+            <li class="dropdown">
+                <a href="#" class="dropbtn"><i class="fa fa-user"></i> Member <i class="fas fa-caret-down"></i></a>
+                <ul class="dropdown-content">
+                    <li><a href="/gym_system/member/profile.php">Profile</a></li>
+                    <li><a href="/gym_system/member/package.php">View Package</a></li>
+                    <li><a href="/gym_system/member/payment.php">Payment History</a></li>
+                </ul>
+            </li>
+            <li><a href="/gym_system/member/about.php"><i class="fa fa-info-circle"></i> About</a></li>
+            <li><a href="/gym_system/member/policy.php"><i class="fa fa-shield-alt"></i> Policy</a></li>
+            <li><a href="../auth/logout.php"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+        </ul>
     </nav>
 </header>
 <div class="dashboard-container">
@@ -109,11 +87,19 @@ $total_payments = $payment_query->fetch_assoc()['total_payments'];
     <div class="card">
         <h3>Payment Summary</h3>
         <p>Total Payments Made: <?php echo $total_payments; ?></p>
-        <p>Total Amount Paid: RM<?php // Add logic to calculate total amount ?></p>
+        <p>Total Amount Paid: RM<?php echo number_format($total_amount, 2); ?></p>
     </div>
 </div>
 <footer>
     <p>&copy; <?php echo date("Y"); ?> Gym Membership System. All rights reserved.</p>
 </footer>
+<script>
+    // Hamburger Menu
+    const hamburger = document.getElementById('hamburger-menu');
+    const navLinks = document.getElementById('nav-links');
+    hamburger.addEventListener('click', () => {
+        navLinks.classList.toggle('active');
+    });
+</script>
 </body>
 </html>

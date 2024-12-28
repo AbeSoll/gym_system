@@ -319,13 +319,6 @@ table tbody tr:nth-child(even) {
         font-size: 16px;
     }
 
-    .hamburger {
-        display: flex; /* Display hamburger on tablets and smaller screens */
-        position: absolute;
-        top: 20px;
-        right: 28px;
-    }
-
     /* Navbar */
     .navbar {
         flex-direction: column; /* Stack navigation links vertically */
@@ -337,7 +330,7 @@ table tbody tr:nth-child(even) {
         flex-direction: column;
         background-color: #007bff;
         position: absolute;
-        top: 40px; /* Adjust based on header height */
+        top: 35px; /* Adjust based on header height */
         right: 0;
         width: 100%;
         padding: 10px 0;
@@ -466,6 +459,7 @@ table tbody tr:nth-child(even) {
         flex-direction: column; /* Stack links */
         text-align: center; /* Center links */
         gap: 5px;
+        top: 50px; /* Adjust based on header height */
     }
 
     /* Features Section */

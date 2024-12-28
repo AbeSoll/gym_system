@@ -1,4 +1,42 @@
-<?php include 'includes/header.php'; ?>
+<?php
+include '../includes/db.php';
+session_start();
+
+if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'member') {
+    header('Location: ../auth/login.php');
+    exit();
+} 
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gym Membership System</title>
+    <link rel="stylesheet" href="../css/about.css">
+    <link rel="stylesheet" href="../css/member.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+<header>
+    <nav class="navbar">
+        <a href="/gym_system/member/index.php" class="logo">Gym Membership</a>
+        <!-- Animated Hamburger Menu -->
+        <button class="hamburger" id="hamburger-menu">
+            <span class="bar"></span>
+            <span class="bar"></span>
+            <span class="bar"></span>
+        </button>
+        <!-- Navigation Links -->
+        <ul class="nav-links" id="nav-links">
+            <li><a href="/gym_system/member/index.php"><i class="fa fa-home"></i> Home</a></li>
+            <li><a href="/gym_system/member/about.php"><i class="fa fa-info-circle"></i> About</a></li>
+            <li><a href="/gym_system/member/policy.php"><i class="fa fa-shield-alt"></i> Policy</a></li>
+            <li><a href="../auth/logout.php"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+        </ul>
+    </nav>
+</header>
 <div class="about-hero-section">
     <div class="about-hero-content">
         <h1>About Us</h1>
@@ -53,22 +91,22 @@
     <h2>Meet Our Team</h2>
     <div class="team-container">
         <div class="team-card">
-            <img src="images/team1.jpg" alt="Trainer 1">
+            <img src="../images/team1.jpg" alt="Trainer 1">
             <h3>Ahmad Solehin</h3>
             <p>Certified Personal Trainer</p>
         </div>
         <div class="team-card">
-            <img src="images/team2.jpg" alt="Trainer 2">
+            <img src="../images/team2.jpg" alt="Trainer 2">
             <h3>Azfar Harith</h3>
             <p>Yoga & Pilates Expert</p>
         </div>
         <div class="team-card">
-            <img src="images/team3.jpg" alt="Trainer 3">
+            <img src="../images/team3.jpg" alt="Trainer 3">
             <h3>Hafizuddin Raemee</h3>
             <p>Strength & Conditioning Coach</p>
         </div>
         <div class="team-card">
-            <img src="images/team4.jpg" alt="Trainer 4">
+            <img src="../images/team4.jpg" alt="Trainer 4">
             <h3>Fauzi Halim</h3>
             <p>Strength & Conditioning Coach</p>
         </div>
@@ -125,7 +163,7 @@
 <div class="about-footer">
     <h2>Ready to Join Us?</h2>
     <p>Take the first step toward your fitness journey today. Join our community and achieve your goals!</p>
-    <a href="auth/register.php" class="btn-primary">Sign Up Now</a>
+    <a href="/gym_system/member/package.php" class="btn-primary">Survey Your Membership Plan</a>
 </div>
 
 <!-- Scroll Up Button -->
@@ -143,7 +181,8 @@
         testimonialWrapper.style.animationPlayState = 'running';
     });
 </script>
-<script src="js/scrollUpButton.js"></script>
-<script src="js/main.js"></script> <!-- External JavaScript -->
+<script src="../js/member.js"></script>
+<script src="../js/scrollUpButton.js"></script>
+<script src="../js/main.js"></script> <!-- External JavaScript -->
 
-<?php include 'includes/footer.php'; ?>
+<?php include '../includes/footer.php'; ?>

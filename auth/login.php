@@ -47,7 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 if (password_verify($password, $hashed_password)) {
                     $_SESSION['role'] = 'member';
                     $_SESSION['member_id'] = $member_id;
-                    header("Location: /gym_system/member/dashboard.php");
+                    header("Location: /gym_system/member/index.php");
                     exit();
                 } else {
                     $error = "Invalid password. Please try again.";

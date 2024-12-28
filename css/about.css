@@ -323,6 +323,10 @@
         font-size: 14px;
     }
 
+    .about-testimonials h2 {
+        font-size: 24px; /* Smaller font size */
+    }
+
     /* Mission and Vision */
     .intro-container {
         flex-direction: column; /* Stack vertically */
@@ -360,11 +364,17 @@
     .testimonial-wrapper {
         flex-wrap: wrap; /* Stack testimonials vertically */
         animation: none; /* Disable animation for smaller screens */
+        gap: 2px;
     }
 
     .testimonial-card {
         width: 100%; /* Full width */
         margin-bottom: 20px;
+        padding: 20px 5px;
+    }
+
+    .testimonial-card p, .testimonial-card .customer-name {
+        font-size: 14px; /* Smaller font size */
     }
 }
 
