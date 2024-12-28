@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 27, 2024 at 11:10 AM
+-- Generation Time: Dec 27, 2024 at 07:45 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.0.30
 
@@ -20,6 +20,26 @@ SET time_zone = "+00:00";
 --
 -- Database: `gym_membership`
 --
+
+DELIMITER $$
+--
+-- Procedures
+--
+CREATE DEFINER=`root`@`localhost` PROCEDURE `check_member_status` ()   BEGIN
+    -- Set members to inactive whose plans have expired
+    UPDATE members
+    INNER JOIN member_packages ON members.id = member_packages.member_id
+    SET members.status = 'inactive'
+    WHERE member_packages.end_date < CURDATE();
+
+    -- Set members to active whose plans are still valid
+    UPDATE members
+    INNER JOIN member_packages ON members.id = member_packages.member_id
+    SET members.status = 'active'
+    WHERE member_packages.end_date >= CURDATE();
+END$$
+
+DELIMITER ;
 
 -- --------------------------------------------------------
 
@@ -64,7 +84,8 @@ CREATE TABLE `members` (
 
 INSERT INTO `members` (`id`, `name`, `gender`, `status`, `email`, `password`, `phone`, `address`, `created_at`) VALUES
 (1, 'AHMAD SOLEHIN BIN ASMADI', 'male', 'inactive', 'solehinahmad954@gmail.com', '$2y$10$HKuaaaA8Lk5vKnddLgeOeOeapIzeT41C8zOfnJj8AClbX8Ria2hmK', '0177587549', 'NO 143 FELCRA KAMPUNG MELAYU BATU 4 PALOH', '2024-12-26 07:59:17'),
-(2, 'AHMAD', 'male', 'inactive', '2023479352@student.uitm.edu.my', '$2y$10$HKuaaaA8Lk5vKnddLgeOeOeapIzeT41C8zOfnJj8AClbX8Ria2hmK', '0177587549', 'NO 143 FELCRA KAMPUNG MELAYU BATU 4 PALOH', '2024-12-26 17:33:49');
+(2, 'AHMAD', 'male', 'inactive', '2023479352@student.uitm.edu.my', '$2y$10$HKuaaaA8Lk5vKnddLgeOeOeapIzeT41C8zOfnJj8AClbX8Ria2hmK', '0177587549', 'NO 143 FELCRA KAMPUNG MELAYU BATU 4 PALOH', '2024-12-26 17:33:49'),
+(3, 'Ahmad Solehin Bin Asmadi', 'male', 'inactive', 'solehinahmad948@gmail.com', '$2y$10$IFIbTVuh7ZqQCmGXrNYM3uHXNtk/w.rA/ml5Ra1NzJ1OIC19DqS4.', '0177587549', 'NO 143 FELCRA KAMPUNG MELAYU BATU 4 PALOH', '2024-12-27 14:28:24');
 
 -- --------------------------------------------------------
 
@@ -80,6 +101,24 @@ CREATE TABLE `member_packages` (
   `end_date` date NOT NULL,
   `status` enum('active','expired') NOT NULL DEFAULT 'active'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Triggers `member_packages`
+--
+DELIMITER $$
+CREATE TRIGGER `update_member_status` AFTER UPDATE ON `member_packages` FOR EACH ROW BEGIN
+    IF NEW.end_date < CURDATE() THEN
+        UPDATE members
+        SET status = 'inactive'
+        WHERE id = NEW.member_id;
+    ELSE
+        UPDATE members
+        SET status = 'active'
+        WHERE id = NEW.member_id;
+    END IF;
+END
+$$
+DELIMITER ;
 
 -- --------------------------------------------------------
 
@@ -171,7 +210,7 @@ ALTER TABLE `admins`
 -- AUTO_INCREMENT for table `members`
 --
 ALTER TABLE `members`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `member_packages`

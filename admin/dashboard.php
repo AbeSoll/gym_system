@@ -3,9 +3,9 @@ include '../includes/db.php';
 session_start();
 
 // Redirect if the admin is not logged in
-if (!isset($_SESSION['admin_id'])) {
+if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
     header('Location: ../auth/login.php');
-    exit;
+    exit();
 }
 
 // Auto-update membership status based on the end_date

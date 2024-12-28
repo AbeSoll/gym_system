@@ -2,9 +2,9 @@
 include '../includes/db.php';
 session_start();
 
-if (!isset($_SESSION['admin_id'])) {
+if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
     header('Location: ../auth/login.php');
-    exit;
+    exit();
 }
 
 // Fetch members with pagination and sorting
@@ -174,49 +174,33 @@ $next_order = $sort_order === 'asc' ? 'desc' : 'asc';
             <thead>
                 <tr>
                     <th>#</th>
-                    <th>
+                    <th class="sortable">
                         <a href="?search=<?php echo $search; ?>&status=<?php echo $filter; ?>&sort=name&order=<?php echo $next_order; ?>">
-                            Name
-                            <?php if ($sort_column == 'name'): ?>
-                                <?php echo $sort_order == 'asc' ? '▲' : '▼'; ?>
-                            <?php endif; ?>
+                            Name <i class="fas fa-sort-<?php echo $sort_column === 'name' ? $sort_order : 'asc'; ?>"></i>
                         </a>
                     </th>
-                    <th>
+                    <th class="sortable">
                         <a href="?search=<?php echo $search; ?>&status=<?php echo $filter; ?>&sort=email&order=<?php echo $next_order; ?>">
-                            Email
-                            <?php if ($sort_column == 'email'): ?>
-                                <?php echo $sort_order == 'asc' ? '▲' : '▼'; ?>
-                            <?php endif; ?>
+                            Email <i class="fas fa-sort-<?php echo $sort_column === 'email' ? $sort_order : 'asc'; ?>"></i>
                         </a>
                     </th>
-                    <th>
+                    <th class="sortable">
                         <a href="?search=<?php echo $search; ?>&status=<?php echo $filter; ?>&sort=phone&order=<?php echo $next_order; ?>">
-                            Phone
-                            <?php if ($sort_column == 'phone'): ?>
-                                <?php echo $sort_order == 'asc' ? '▲' : '▼'; ?>
-                            <?php endif; ?>
+                            Phone <i class="fas fa-sort-<?php echo $sort_column === 'phone' ? $sort_order : 'asc'; ?>"></i>
                         </a>
                     </th>
-                    <th>
+                    <th class="sortable">
                         <a href="?search=<?php echo $search; ?>&status=<?php echo $filter; ?>&sort=address&order=<?php echo $next_order; ?>">
-                            Address
-                            <?php if ($sort_column == 'address'): ?>
-                                <?php echo $sort_order == 'asc' ? '▲' : '▼'; ?>
-                            <?php endif; ?>
+                            Address <i class="fas fa-sort-<?php echo $sort_column === 'address' ? $sort_order : 'asc'; ?>"></i>
                         </a>
                     </th>
-                    <th>
+                    <th class="sortable">
                         <a href="?search=<?php echo $search; ?>&status=<?php echo $filter; ?>&sort=status&order=<?php echo $next_order; ?>">
-                            Status
-                            <?php if ($sort_column == 'status'): ?>
-                                <?php echo $sort_order == 'asc' ? '▲' : '▼'; ?>
-                            <?php endif; ?>
+                            Status <i class="fas fa-sort-<?php echo $sort_column === 'status' ? $sort_order : 'asc'; ?>"></i>
                         </a>
                     </th>
                 </tr>
             </thead>
-
                 <tbody>
                     <?php if ($result->num_rows > 0): ?>
                         <?php $counter = $offset + 1; ?>

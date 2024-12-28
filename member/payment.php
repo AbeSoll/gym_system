@@ -3,9 +3,9 @@ include '../includes/db.php';
 session_start();
 
 // Check if user is logged in
-if (!isset($_SESSION['user_id'])) {
+if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'member') {
     header('Location: ../auth/login.php');
-    exit;
+    exit();
 }
 
 $user_id = $_SESSION['user_id'];

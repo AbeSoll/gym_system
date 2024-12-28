@@ -24,6 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $stmt->fetch();
 
             if (password_verify($password, $hashed_password)) {
+                $_SESSION['role'] = 'admin';
                 $_SESSION['admin_id'] = $admin_id;
                 $login_success = true;
                 header("Location: /gym_system/admin/dashboard.php");
@@ -44,7 +45,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $stmt->fetch();
 
                 if (password_verify($password, $hashed_password)) {
-                    $_SESSION['user_id'] = $member_id;
+                    $_SESSION['role'] = 'member';
+                    $_SESSION['member_id'] = $member_id;
                     header("Location: /gym_system/member/dashboard.php");
                     exit();
                 } else {
@@ -66,6 +68,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <title>Login</title>
     <link rel="stylesheet" href="../css/login.css">
     <link rel="stylesheet" href="../css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </head>

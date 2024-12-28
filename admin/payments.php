@@ -2,11 +2,10 @@
 include '../includes/db.php';
 session_start();
 
-if (!isset($_SESSION['admin_id'])) {
+if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
     header('Location: ../auth/login.php');
-    exit;
+    exit();
 }
-
 // Pagination and sorting variables
 $search = isset($_GET['search']) ? $_GET['search'] : '';
 $status_filter = isset($_GET['status']) ? $_GET['status'] : '';
