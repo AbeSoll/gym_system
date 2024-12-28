@@ -50,10 +50,11 @@ $total_amount = $payment_data['total_amount'] ?? 0;
         <ul class="nav-links" id="nav-links">
             <li><a href="/gym_system/member/index.php"><i class="fa fa-home"></i> Home</a></li>
             <li class="dropdown">
-                <a href="#" class="dropbtn"><i class="fa fa-user"></i> Member <i class="fas fa-caret-down"></i></a>
+                <a href="#" class="dropbtn"><i class="fa fa-user"></i> Member Menu <i class="fas fa-caret-down"></i></a>
                 <ul class="dropdown-content">
-                    <li><a href="/gym_system/member/profile.php">Profile</a></li>
-                    <li><a href="/gym_system/member/package.php">View Package</a></li>
+                    <li><a href="/gym_system/member/dashboard.php">Dashboard</a></li>
+                    <li><a href="/gym_system/member/profile.php">My Account</a></li>
+                    <li><a href="/gym_system/member/package.php">Membership Plan</a></li>
                     <li><a href="/gym_system/member/payment.php">Payment History</a></li>
                 </ul>
             </li>
@@ -101,5 +102,8 @@ $total_amount = $payment_data['total_amount'] ?? 0;
         navLinks.classList.toggle('active');
     });
 </script>
+<script src="../js/member.js"></script>
+<script src="../js/scrollUpButton.js"></script>
+<script src="../js/main.js"></script> <!-- External JavaScript -->
 </body>
 </html>

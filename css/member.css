@@ -74,7 +74,19 @@ footer {
 }
 
 /* Default hover color for all links */
-.nav-links li a:hover {
+.nav-links li a[href="/gym_system/member/index.php"]:hover {
+    color: #002c51; /* Default hover color */
+}
+
+.nav-links li a[href="#"]:hover {
+    color: #002c51; /* Default hover color */
+}
+
+.nav-links li a[href="/gym_system/member/about.php"]:hover {
+    color: #002c51; /* Default hover color */
+}
+
+.nav-links li a[href="/gym_system/member/policy.php"]:hover {
     color: #002c51; /* Default hover color */
 }
 
