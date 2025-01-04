@@ -47,8 +47,6 @@
             <p>We focus on both physical and mental well-being for a balanced and fulfilling lifestyle.</p>
         </div>
     </div>
-</div>
-
 <div class="about-team">
     <h2>Meet Our Team</h2>
     <div class="team-container">
@@ -71,6 +69,11 @@
             <img src="images/team4.jpg" alt="Trainer 4">
             <h3>Fauzi Halim</h3>
             <p>Strength & Conditioning Coach</p>
+        </div>
+        <div class="team-card">
+            <img src="images/team5.jpg" alt="Trainer 5">
+            <h3>Meor Amir</h3>
+            <p>Nutrition Specialist</p>
         </div>
     </div>
 </div>

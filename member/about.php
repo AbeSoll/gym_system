@@ -117,6 +117,11 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'member') {
             <h3>Fauzi Halim</h3>
             <p>Strength & Conditioning Coach</p>
         </div>
+        <div class="team-card">
+            <img src="../images/team5.jpg" alt="Trainer 5">
+            <h3>Meor Amir</h3>
+            <p>Nutrition Specialist</p>
+        </div>
     </div>
 </div>
 
