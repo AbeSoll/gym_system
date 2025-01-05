@@ -8,13 +8,11 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
     exit();
 }
 
-// Auto-update membership status based on the end_date
+// Auto-update membership status based on the end_date in `member_packages`
 $conn->query("
-    UPDATE members m
-    JOIN member_packages mp ON m.id = mp.member_id
-    SET m.status = 'inactive', mp.status = 'expired'
-    WHERE mp.end_date < CURDATE()
-    AND m.status = 'active'
+    UPDATE member_packages 
+    SET status = 'expired' 
+    WHERE end_date < CURDATE() AND status = 'active'
 ");
 
 // Fetch dashboard data
@@ -22,8 +20,8 @@ $dashboardData = $conn->query("
     SELECT 
         (SELECT COUNT(*) FROM members) AS totalMembers,
         (SELECT SUM(amount) FROM payments WHERE payment_status = 'paid') AS totalPayments,
-        (SELECT COUNT(*) FROM members WHERE status = 'active') AS activeMembers,
-        (SELECT COUNT(*) FROM members WHERE status = 'inactive') AS inactiveMembers
+        (SELECT COUNT(*) FROM member_packages WHERE status = 'active') AS activeMembers,
+        (SELECT COUNT(*) FROM member_packages WHERE status = 'expired') AS inactiveMembers
 ")->fetch_assoc();
 
 $totalMembers = $dashboardData['totalMembers'];
@@ -46,10 +44,11 @@ while ($row = $monthlyPaymentsQuery->fetch_assoc()) {
 
 // Fetch gender data for pie charts
 $activeGenderQuery = $conn->query("
-    SELECT gender, COUNT(*) AS total
-    FROM members
-    WHERE status = 'active'
-    GROUP BY gender
+    SELECT m.gender, COUNT(*) AS total
+    FROM members m
+    JOIN member_packages mp ON m.id = mp.member_id
+    WHERE mp.status = 'active'
+    GROUP BY m.gender
 ");
 $activeGenderData = [];
 while ($row = $activeGenderQuery->fetch_assoc()) {
@@ -57,10 +56,11 @@ while ($row = $activeGenderQuery->fetch_assoc()) {
 }
 
 $nonActiveGenderQuery = $conn->query("
-    SELECT gender, COUNT(*) AS total
-    FROM members
-    WHERE status = 'inactive'
-    GROUP BY gender
+    SELECT m.gender, COUNT(*) AS total
+    FROM members m
+    JOIN member_packages mp ON m.id = mp.member_id
+    WHERE mp.status = 'expired'
+    GROUP BY m.gender
 ");
 $nonActiveGenderData = [];
 while ($row = $nonActiveGenderQuery->fetch_assoc()) {
@@ -103,6 +103,7 @@ while ($row = $nonActiveGenderQuery->fetch_assoc()) {
             <li><a href="dashboard.php"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
             <li><a href="view_members.php"><i class="fas fa-users"></i> List Members</a></li>
             <li><a href="payments.php"><i class="fas fa-dollar-sign"></i> View Payments</a></li>
+            <li><a href="manage_package.php"><i class="fas fa-cubes"></i> Manage Packages</a></li>
             <li><a href="../auth/logout.php"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
         </ul>
     </aside>
@@ -148,14 +149,15 @@ while ($row = $nonActiveGenderQuery->fetch_assoc()) {
                 <ul>
                     <?php
                     $recentMembersQuery = $conn->query("
-                        SELECT name, email, created_at 
-                        FROM members 
-                        WHERE status = 'active'
-                        ORDER BY created_at DESC 
+                        SELECT m.name, m.email, mp.start_date
+                        FROM members m
+                        JOIN member_packages mp ON m.id = mp.member_id
+                        WHERE mp.status = 'active'
+                        ORDER BY mp.start_date DESC 
                         LIMIT 5
                     ");
                     while ($member = $recentMembersQuery->fetch_assoc()) {
-                        echo "<li><strong>{$member['name']}</strong> - {$member['email']}<br><small>Joined: {$member['created_at']}</small></li>";
+                        echo "<li><strong>{$member['name']}</strong> - {$member['email']}<br><small>Membership Start: {$member['start_date']}</small></li>";
                     }
                     ?>
                 </ul>

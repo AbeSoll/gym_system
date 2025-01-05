@@ -12,12 +12,17 @@ $member_id = $_SESSION['member_id'];
 $member_query = $conn->query("SELECT * FROM members WHERE id = $member_id");
 $member = $member_query->fetch_assoc();
 
-// Fetch active package details
+// Fetch active package details and status
 $package_query = $conn->query("
-    SELECT packages.name AS package_name, member_packages.start_date, member_packages.end_date
+    SELECT 
+        packages.name AS package_name, 
+        member_packages.start_date, 
+        member_packages.end_date, 
+        member_packages.status AS package_status
     FROM member_packages
     JOIN packages ON member_packages.package_id = packages.id
-    WHERE member_packages.member_id = $member_id AND member_packages.status = 'active'
+    WHERE member_packages.member_id = $member_id
+    AND member_packages.status = 'active'
     LIMIT 1
 ");
 $active_package = $package_query->fetch_assoc();
@@ -39,49 +44,25 @@ $total_amount = $payment_data['total_amount'] ?? 0;
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
-<header>
-    <nav class="navbar">
-        <a href="/gym_system/member/index.php" class="logo">Gym Membership</a>
-        <div class="hamburger" id="hamburger-menu">
-            <span class="bar"></span>
-            <span class="bar"></span>
-            <span class="bar"></span>
-        </div>
-        <ul class="nav-links" id="nav-links">
-            <li><a href="/gym_system/member/index.php"><i class="fa fa-home"></i> Home</a></li>
-            <li class="dropdown">
-                <a href="#" class="dropbtn"><i class="fa fa-user"></i> Member Menu <i class="fas fa-caret-down"></i></a>
-                <ul class="dropdown-content">
-                    <li><a href="/gym_system/member/dashboard.php">Dashboard</a></li>
-                    <li><a href="/gym_system/member/profile.php">My Account</a></li>
-                    <li><a href="/gym_system/member/package.php">Membership Plan</a></li>
-                    <li><a href="/gym_system/member/payment.php">Payment History</a></li>
-                </ul>
-            </li>
-            <li><a href="/gym_system/member/about.php"><i class="fa fa-info-circle"></i> About</a></li>
-            <li><a href="/gym_system/member/policy.php"><i class="fa fa-shield-alt"></i> Policy</a></li>
-            <li><a href="../auth/logout.php"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
-        </ul>
-    </nav>
-</header>
+<?php include 'includes/header.php'; ?>
 <div class="dashboard-container">
     <h2>Welcome, <?php echo $member['name']; ?>!</h2>
     <div class="card">
         <h3>Membership Status</h3>
-        <p>Status: <strong><?php echo ucfirst($member['status']); ?></strong></p>
         <?php if ($active_package): ?>
+            <p>Status: <strong><?php echo ucfirst($active_package['package_status']); ?></strong></p>
             <p>Package: <strong><?php echo $active_package['package_name']; ?></strong></p>
             <p>Start Date: <?php echo $active_package['start_date']; ?></p>
             <p>End Date: <?php echo $active_package['end_date']; ?></p>
         <?php else: ?>
-            <p>No active package. <a href="package.php">View Plans</a></p>
+            <p>No active package. <a href="packages.php">View Plans</a></p>
         <?php endif; ?>
     </div>
     <div class="card">
         <h3>Quick Navigation</h3>
         <div class="actions">
             <a href="profile.php">Profile</a>
-            <a href="package.php">View Packages</a>
+            <a href="packages.php">View Packages</a>
             <a href="payment.php">Payment History</a>
         </div>
     </div>
@@ -107,3 +88,4 @@ $total_amount = $payment_data['total_amount'] ?? 0;
 <script src="../js/main.js"></script> <!-- External JavaScript -->
 </body>
 </html>
+

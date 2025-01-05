@@ -16,17 +16,29 @@ $offset = ($page - 1) * $limit;
 $sort_column = isset($_GET['sort']) ? $_GET['sort'] : 'name';
 $sort_order = isset($_GET['order']) && $_GET['order'] === 'desc' ? 'desc' : 'asc';
 
-$query = "SELECT * FROM members WHERE (name LIKE '%$search%' OR email LIKE '%$search%')";
+$query = "
+    SELECT 
+        m.*, 
+        IFNULL(mp.status, 'inactive') AS membership_status 
+    FROM members m
+    LEFT JOIN member_packages mp ON m.id = mp.member_id AND mp.status = 'active'
+    WHERE (m.name LIKE '%$search%' OR m.email LIKE '%$search%')
+";
 if ($filter) {
-    $query .= " AND status = '$filter'";
+    $query .= " AND mp.status = '$filter'";
 }
 $query .= " ORDER BY $sort_column $sort_order LIMIT $limit OFFSET $offset";
 $result = $conn->query($query);
 
 // Get total number of members for pagination
-$total_query = "SELECT COUNT(*) as total FROM members WHERE (name LIKE '%$search%' OR email LIKE '%$search%')";
+$total_query = "
+    SELECT COUNT(*) as total 
+    FROM members m
+    LEFT JOIN member_packages mp ON m.id = mp.member_id AND mp.status = 'active'
+    WHERE (m.name LIKE '%$search%' OR m.email LIKE '%$search%')
+";
 if ($filter) {
-    $total_query .= " AND status = '$filter'";
+    $total_query .= " AND mp.status = '$filter'";
 }
 $total_result = $conn->query($total_query);
 $total_members = $total_result->fetch_assoc()['total'];
@@ -153,6 +165,7 @@ $next_order = $sort_order === 'asc' ? 'desc' : 'asc';
             <li><a href="dashboard.php"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
             <li><a href="view_members.php"><i class="fas fa-users"></i> List Members</a></li>
             <li><a href="payments.php"><i class="fas fa-dollar-sign"></i> View Payments</a></li>
+            <li><a href="manage_package.php"><i class="fas fa-cubes"></i> Manage Packages</a></li>
             <li><a href="../auth/logout.php"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
         </ul>
     </aside>
@@ -165,42 +178,42 @@ $next_order = $sort_order === 'asc' ? 'desc' : 'asc';
                     <select name="status">
                         <option value="">All Status</option>
                         <option value="active" <?php echo $filter === 'active' ? 'selected' : ''; ?>>Active</option>
-                        <option value="inactive" <?php echo $filter === 'inactive' ? 'selected' : ''; ?>>Inactive</option>
+                        <option value="expired" <?php echo $filter === 'expired' ? 'selected' : ''; ?>>Expired</option>
                     </select>
                     <button type="submit"><i class="fas fa-search"></i> Search</button>
                 </form>
             </div>
             <table>
-            <thead>
-                <tr>
-                    <th>#</th>
-                    <th class="sortable">
-                        <a href="?search=<?php echo $search; ?>&status=<?php echo $filter; ?>&sort=name&order=<?php echo $next_order; ?>">
-                            Name <i class="fas fa-sort-<?php echo $sort_column === 'name' ? $sort_order : 'asc'; ?>"></i>
-                        </a>
-                    </th>
-                    <th class="sortable">
-                        <a href="?search=<?php echo $search; ?>&status=<?php echo $filter; ?>&sort=email&order=<?php echo $next_order; ?>">
-                            Email <i class="fas fa-sort-<?php echo $sort_column === 'email' ? $sort_order : 'asc'; ?>"></i>
-                        </a>
-                    </th>
-                    <th class="sortable">
-                        <a href="?search=<?php echo $search; ?>&status=<?php echo $filter; ?>&sort=phone&order=<?php echo $next_order; ?>">
-                            Phone <i class="fas fa-sort-<?php echo $sort_column === 'phone' ? $sort_order : 'asc'; ?>"></i>
-                        </a>
-                    </th>
-                    <th class="sortable">
-                        <a href="?search=<?php echo $search; ?>&status=<?php echo $filter; ?>&sort=address&order=<?php echo $next_order; ?>">
-                            Address <i class="fas fa-sort-<?php echo $sort_column === 'address' ? $sort_order : 'asc'; ?>"></i>
-                        </a>
-                    </th>
-                    <th class="sortable">
-                        <a href="?search=<?php echo $search; ?>&status=<?php echo $filter; ?>&sort=status&order=<?php echo $next_order; ?>">
-                            Status <i class="fas fa-sort-<?php echo $sort_column === 'status' ? $sort_order : 'asc'; ?>"></i>
-                        </a>
-                    </th>
-                </tr>
-            </thead>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th class="sortable">
+                            <a href="?search=<?php echo $search; ?>&status=<?php echo $filter; ?>&sort=name&order=<?php echo $next_order; ?>">
+                                Name <i class="fas fa-sort-<?php echo $sort_column === 'name' ? $sort_order : 'asc'; ?>"></i>
+                            </a>
+                        </th>
+                        <th class="sortable">
+                            <a href="?search=<?php echo $search; ?>&status=<?php echo $filter; ?>&sort=email&order=<?php echo $next_order; ?>">
+                                Email <i class="fas fa-sort-<?php echo $sort_column === 'email' ? $sort_order : 'asc'; ?>"></i>
+                            </a>
+                        </th>
+                        <th class="sortable">
+                            <a href="?search=<?php echo $search; ?>&status=<?php echo $filter; ?>&sort=phone&order=<?php echo $next_order; ?>">
+                                Phone <i class="fas fa-sort-<?php echo $sort_column === 'phone' ? $sort_order : 'asc'; ?>"></i>
+                            </a>
+                        </th>
+                        <th class="sortable">
+                            <a href="?search=<?php echo $search; ?>&status=<?php echo $filter; ?>&sort=address&order=<?php echo $next_order; ?>">
+                                Address <i class="fas fa-sort-<?php echo $sort_column === 'address' ? $sort_order : 'asc'; ?>"></i>
+                            </a>
+                        </th>
+                            <th class="sortable">
+                            <a href="?search=<?php echo $search; ?>&status=<?php echo $filter; ?>&sort=address&order=<?php echo $next_order; ?>">    
+                                Status <i class="fas fa-sort-<?php echo $sort_column === 'status' ? $sort_order : 'asc'; ?>"></i>
+                            </a>
+                        </th>
+                    </tr>
+                </thead>
                 <tbody>
                     <?php if ($result->num_rows > 0): ?>
                         <?php $counter = $offset + 1; ?>
@@ -211,8 +224,8 @@ $next_order = $sort_order === 'asc' ? 'desc' : 'asc';
                                 <td><?php echo $row['email']; ?></td>
                                 <td><?php echo $row['phone']; ?></td>
                                 <td><?php echo $row['address']; ?></td>
-                                <td class="<?php echo $row['status'] === 'active' ? 'status-active' : 'status-inactive'; ?>">
-                                    <?php echo ucfirst($row['status']); ?>
+                                <td class="<?php echo $row['membership_status'] === 'active' ? 'status-active' : 'status-inactive'; ?>">
+                                    <?php echo ucfirst($row['membership_status']); ?>
                                 </td>
                             </tr>
                         <?php endwhile; ?>

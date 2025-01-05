@@ -1,70 +1,168 @@
 <?php
-include '../includes/db.php';
 session_start();
+include '../includes/db.php';
 
-// Check if user is logged in
-if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'member') {
-    header('Location: ../auth/login.php');
+// Ensure member is logged in
+if (!isset($_SESSION['member_id']) || !isset($_GET['package_id'])) {
+    header('Location: packages.php');
     exit();
 }
 
-$user_id = $_SESSION['user_id'];
+$member_id = $_SESSION['member_id'];
+$package_id = intval($_GET['package_id']);
 
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    // Get payment amount from form
-    $amount = $_POST['amount'];
+// Fetch package details
+$package_query = $conn->query("SELECT * FROM packages WHERE id = $package_id");
+$package = $package_query->fetch_assoc();
 
-    // Insert payment into the database
-    $sql = "INSERT INTO payments (member_id, payment_status, amount) VALUES ('$user_id', 'paid', '$amount')";
-    if ($conn->query($sql) === TRUE) {
-        $success = "Payment successful!";
-    } else {
-        $error = "Error processing payment: " . $conn->error;
-    }
+if (!$package) {
+    header('Location: packages.php');
+    exit();
 }
 
-// Fetch all payments for the logged-in user
-$payment_results = $conn->query("SELECT * FROM payments WHERE member_id = '$user_id'");
+// Payment processing
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $bank_name = $_POST['bank_name'];
+    $price = $package['price'];
+    $start_date = date('Y-m-d');
+    $end_date = date('Y-m-d', strtotime("+{$package['duration']} months"));
+
+    $conn->begin_transaction();
+    try {
+        // Insert into member_packages
+        $conn->query("INSERT INTO member_packages (member_id, package_id, start_date, end_date, status)
+                      VALUES ($member_id, $package_id, '$start_date', '$end_date', 'active')");
+
+        // Insert into payments
+        $conn->query("INSERT INTO payments (member_id, package_id, payment_status, amount, bank_name)
+                      VALUES ($member_id, $package_id, 'paid', $price, '$bank_name')");
+
+        $conn->commit();
+        header('Location: payment_history.php?success=1');
+        exit();
+    } catch (Exception $e) {
+        $conn->rollback();
+        $error = "Payment failed. Please try again.";
+    }
+}
 ?>
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Make Payment</title>
-    <link rel="stylesheet" href="../css/style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Billing Payment</title>
+    <link rel="stylesheet" href="../css/member.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .container h2 {
+            text-align: center;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        label {
+            font-weight: bold;
+        }
+        select, input, button {
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .popup {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            display: none;
+            z-index: 1000;
+        }
+        .popup-content {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .popup-content button {
+            margin: 5px;
+            padding: 10px 20px;
+        }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <h2>Make a Payment</h2>
+<div class="container">
+    <h2>Billing Payment</h2>
+    <p><strong>Package:</strong> <?php echo $package['name']; ?></p>
+    <p><strong>Price:</strong> RM<?php echo number_format($package['price'], 2); ?></p>
+    <form id="paymentForm" method="POST">
+        <label for="bank_name">Choose Bank:</label>
+        <select name="bank_name" id="bank_name" required>
+            <option value="">Select your bank</option>
+            <option value="Maybank">Maybank</option>
+            <option value="CIMB Bank">CIMB Bank</option>
+            <option value="Public Bank">Public Bank</option>
+            <option value="RHB Bank">RHB Bank</option>
+            <option value="Hong Leong Bank">Hong Leong Bank</option>
+            <option value="AmBank">AmBank</option>
+            <option value="Bank Islam">Bank Islam</option>
+            <option value="Bank Rakyat">Bank Rakyat</option>
+            <option value="Bank Simpanan Nasional">Bank Simpanan Nasional (BSN)</option>
+            <option value="HSBC Bank">HSBC Bank</option>
+        </select>
+        <button type="button" onclick="showConfirmation()">Proceed to Payment</button>
+    </form>
+</div>
 
-        <!-- Payment Form -->
-        <form method="POST">
-            <label for="amount">Enter Payment Amount (RM):</label>
-            <input type="number" name="amount" id="amount" placeholder="E.g. 100" required>
-            <button type="submit">Pay Now</button>
-        </form>
-
-        <?php if (isset($success)) echo "<p class='success'>$success</p>"; ?>
-        <?php if (isset($error)) echo "<p class='error'>$error</p>"; ?>
-
-        <!-- Display Payment History -->
-        <h3>Your Payment History</h3>
-        <table>
-            <tr>
-                <th>Payment ID</th>
-                <th>Amount (RM)</th>
-                <th>Status</th>
-                <th>Date</th>
-            </tr>
-            <?php while ($payment = $payment_results->fetch_assoc()): ?>
-                <tr>
-                    <td><?php echo $payment['id']; ?></td>
-                    <td><?php echo $payment['amount']; ?></td>
-                    <td><?php echo ucfirst($payment['payment_status']); ?></td>
-                    <td><?php echo date("d-m-Y H:i:s", strtotime($payment['payment_date'])); ?></td>
-                </tr>
-            <?php endwhile; ?>
-        </table>
+<div class="popup" id="confirmationPopup">
+    <div class="popup-content">
+        <p>Are you sure you want to proceed with the payment?</p>
+        <button id="confirmYes">Yes</button>
+        <button id="confirmNo">No</button>
     </div>
-    <?php include '../includes/footer.php'; ?>
+</div>
+
+<script>
+    function showConfirmation() {
+        document.getElementById('confirmationPopup').style.display = 'flex';
+    }
+    document.getElementById('confirmYes').addEventListener('click', function () {
+        document.getElementById('paymentForm').submit();
+    });
+    document.getElementById('confirmNo').addEventListener('click', function () {
+        document.getElementById('confirmationPopup').style.display = 'none';
+    });
+</script>
 </body>
 </html>

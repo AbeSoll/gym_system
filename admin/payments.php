@@ -170,6 +170,7 @@ $next_order = $sort_order === 'asc' ? 'desc' : 'asc';
             <li><a href="dashboard.php"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
             <li><a href="view_members.php"><i class="fas fa-users"></i> List Members</a></li>
             <li><a href="payments.php"><i class="fas fa-dollar-sign"></i> View Payments</a></li>
+            <li><a href="manage_package.php"><i class="fas fa-cubes"></i> Manage Packages</a></li>
             <li><a href="../auth/logout.php"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
         </ul>
     </aside>
