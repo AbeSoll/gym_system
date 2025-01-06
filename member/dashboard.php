@@ -42,19 +42,24 @@ $total_amount = $payment_data['total_amount'] ?? 0;
     <link rel="stylesheet" href="../css/member.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .status-active { color: green; font-weight: bold; }
+        .status-inactive { color: red; font-weight: bold; }
+    </style>
 </head>
 <body>
 <?php include 'includes/header.php'; ?>
 <div class="dashboard-container">
-    <h2>Welcome, <?php echo $member['name']; ?>!</h2>
+    <h2>Welcome, <?php echo htmlspecialchars($member['name']); ?>!</h2>
     <div class="card">
-        <h3>Membership Status</h3>
+        <h3>Active Membership Details</h3>
         <?php if ($active_package): ?>
-            <p>Status: <strong><?php echo ucfirst($active_package['package_status']); ?></strong></p>
-            <p>Package: <strong><?php echo $active_package['package_name']; ?></strong></p>
-            <p>Start Date: <?php echo $active_package['start_date']; ?></p>
-            <p>End Date: <?php echo $active_package['end_date']; ?></p>
+            <p>Status: <strong class="status-active"><?php echo ucfirst($active_package['package_status']); ?></strong></p>
+            <p>Package: <strong><?php echo htmlspecialchars($active_package['package_name']); ?></strong></p>
+            <p>Start Date: <?php echo htmlspecialchars($active_package['start_date']); ?></p>
+            <p>End Date: <?php echo htmlspecialchars($active_package['end_date']); ?></p>
         <?php else: ?>
+            <p>Status: <strong class="status-inactive">Inactive</strong></p>
             <p>No active package. <a href="packages.php">View Plans</a></p>
         <?php endif; ?>
     </div>
@@ -63,13 +68,17 @@ $total_amount = $payment_data['total_amount'] ?? 0;
         <div class="actions">
             <a href="profile.php">Profile</a>
             <a href="packages.php">View Packages</a>
-            <a href="payment.php">Payment History</a>
+            <a href="payment_history.php">Payment History</a>
         </div>
     </div>
     <div class="card">
         <h3>Payment Summary</h3>
-        <p>Total Payments Made: <?php echo $total_payments; ?></p>
-        <p>Total Amount Paid: RM<?php echo number_format($total_amount, 2); ?></p>
+        <?php if ($total_payments > 0): ?>
+            <p>Total Payments Made: <?php echo $total_payments; ?></p>
+            <p>Total Amount Paid: RM<?php echo number_format($total_amount, 2); ?></p>
+        <?php else: ?>
+            <p>No payments made yet. <a href="packages.php">Join a package</a> to start your fitness journey!</p>
+        <?php endif; ?>
     </div>
 </div>
 <footer>
@@ -88,4 +97,3 @@ $total_amount = $payment_data['total_amount'] ?? 0;
 <script src="../js/main.js"></script> <!-- External JavaScript -->
 </body>
 </html>
-

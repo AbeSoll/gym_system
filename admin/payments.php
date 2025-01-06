@@ -6,6 +6,7 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
     header('Location: ../auth/login.php');
     exit();
 }
+
 // Pagination and sorting variables
 $search = isset($_GET['search']) ? $_GET['search'] : '';
 $status_filter = isset($_GET['status']) ? $_GET['status'] : '';
@@ -15,44 +16,70 @@ $offset = ($page - 1) * $limit;
 $sort_column = isset($_GET['sort']) ? $_GET['sort'] : 'payment_date';
 $sort_order = isset($_GET['order']) && $_GET['order'] === 'desc' ? 'desc' : 'asc';
 
-// Fetch payments with filters, search, pagination, and membership dates
-$query = "
-    SELECT payments.*, members.name, members.email, member_packages.start_date, member_packages.end_date
-    FROM payments
-    JOIN members ON payments.member_id = members.id
-    LEFT JOIN member_packages ON payments.member_id = member_packages.member_id
-    WHERE (members.name LIKE '%$search%' OR members.email LIKE '%$search%')";
+try {
+    // Fetch payments with filters, search, pagination, and membership dates
+    $query = "
+        SELECT payments.*, members.name, members.email, member_packages.start_date, member_packages.end_date
+        FROM payments
+        JOIN members ON payments.member_id = members.id
+        LEFT JOIN member_packages ON payments.member_id = member_packages.member_id
+        WHERE 
+            (members.name LIKE '%$search%' OR 
+             members.email LIKE '%$search%' OR 
+             payments.amount LIKE '%$search%' OR 
+             payments.payment_status LIKE '%$search%')";
 
-if ($status_filter) {
-    $query .= " AND payments.payment_status = '$status_filter'";
+    if ($status_filter) {
+        $query .= " AND payments.payment_status = '$status_filter'";
+    }
+
+    $query .= " ORDER BY $sort_column $sort_order LIMIT $limit OFFSET $offset";
+    $result = $conn->query($query);
+    if (!$result) {
+        throw new Exception("Error fetching payment records: " . $conn->error);
+    }
+
+    // Total number of payments for pagination
+    $total_query = "
+        SELECT COUNT(*) as total
+        FROM payments
+        JOIN members ON payments.member_id = members.id
+        WHERE 
+            (members.name LIKE '%$search%' OR 
+             members.email LIKE '%$search%' OR 
+             payments.amount LIKE '%$search%' OR 
+             payments.payment_status LIKE '%$search%')";
+    if ($status_filter) {
+        $total_query .= " AND payments.payment_status = '$status_filter'";
+    }
+
+    $total_result = $conn->query($total_query);
+    if (!$total_result) {
+        throw new Exception("Error fetching total payments count: " . $conn->error);
+    }
+
+    $total_payments = $total_result->fetch_assoc()['total'];
+    $total_pages = ceil($total_payments / $limit);
+
+    // Calculate summary statistics
+    $summary_query = "SELECT 
+                        SUM(amount) AS total_paid, 
+                        COUNT(*) AS total_payments 
+                      FROM payments WHERE payment_status = 'paid'";
+    $summary_result = $conn->query($summary_query);
+    if (!$summary_result) {
+        throw new Exception("Error fetching payment summary: " . $conn->error);
+    }
+
+    $summary_data = $summary_result->fetch_assoc();
+    $total_paid = $summary_data['total_paid'] ?? 0;
+    $total_payment_count = $summary_data['total_payments'] ?? 0;
+
+    // Determine the next sort order
+    $next_order = $sort_order === 'asc' ? 'desc' : 'asc';
+} catch (Exception $e) {
+    echo "<div class='error'>An error occurred: " . htmlspecialchars($e->getMessage()) . "</div>";
 }
-
-$query .= " ORDER BY $sort_column $sort_order LIMIT $limit OFFSET $offset";
-$result = $conn->query($query);
-
-// Total number of payments for pagination
-$total_query = "
-    SELECT COUNT(*) as total
-    FROM payments
-    JOIN members ON payments.member_id = members.id
-    WHERE (members.name LIKE '%$search%' OR members.email LIKE '%$search%')";
-if ($status_filter) {
-    $total_query .= " AND payments.payment_status = '$status_filter'";
-}
-$total_result = $conn->query($total_query);
-$total_payments = $total_result->fetch_assoc()['total'];
-$total_pages = ceil($total_payments / $limit);
-
-// Calculate summary statistics
-$summary_query = "SELECT SUM(amount) AS total_paid, COUNT(*) AS total_payments 
-                  FROM payments WHERE payment_status = 'paid'";
-$summary_result = $conn->query($summary_query);
-$summary_data = $summary_result->fetch_assoc();
-$total_paid = $summary_data['total_paid'] ?? 0;
-$total_payment_count = $summary_data['total_payments'] ?? 0;
-
-// Determine the next sort order
-$next_order = $sort_order === 'asc' ? 'desc' : 'asc';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -63,7 +90,7 @@ $next_order = $sort_order === 'asc' ? 'desc' : 'asc';
     <link rel="stylesheet" href="../css/admin.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-        <style>
+    <style>
         .container {
             padding: 20px;
         }
@@ -97,7 +124,7 @@ $next_order = $sort_order === 'asc' ? 'desc' : 'asc';
             text-align: left;
             padding: 15px;
             border-bottom: 1px solid #ddd;
-            font-size: 15px; /* Reduce font size */
+            font-size: 15px;
         }
         table th {
             background-color: #f4f4f4;
@@ -105,23 +132,6 @@ $next_order = $sort_order === 'asc' ? 'desc' : 'asc';
         }
         table tr:hover {
             background-color: #f1f1f1;
-        }
-        .actions {
-            display: flex;
-            gap: 10px;
-        }
-        .actions a {
-            text-decoration: none;
-            padding: 5px 10px;
-            border-radius: 5px;
-            color: white;
-            font-size: 12px;
-        }
-        .actions .edit {
-            background-color: #28a745;
-        }
-        .actions .delete {
-            background-color: #dc3545;
         }
         .pagination {
             margin-top: 20px;
@@ -140,12 +150,16 @@ $next_order = $sort_order === 'asc' ? 'desc' : 'asc';
             color: white;
             border: none;
         }
-        .status-active {
+        .status-paid {
             color: green;
         }
-        .status-inactive {
+        .status-canceled {
             color: red;
         }
+        table td:nth-child(4), table th:nth-child(4) {
+            text-align: right;
+        }
+
     </style>
 </head>
 <body>
@@ -160,7 +174,7 @@ $next_order = $sort_order === 'asc' ? 'desc' : 'asc';
             <a href="dashboard.php" class="logo">Admin Dashboard</a>
         </div>
         <div class="profile">
-            <a href="profile.php"><i class="fas fa-user"></i> Admin Profile</a>
+            <a href="#"><i class="fas fa-user"></i> Admin Profile</a>
         </div>
     </nav>
 </header>
@@ -184,11 +198,11 @@ $next_order = $sort_order === 'asc' ? 'desc' : 'asc';
             </div>
             <div class="search-filter">
                 <form method="GET">
-                    <input type="text" name="search" placeholder="Search by name or email" value="<?php echo $search; ?>">
+                <input type="text" name="search" placeholder="Search" value="<?php echo $search; ?>">
                     <select name="status">
                         <option value="">All Status</option>
                         <option value="paid" <?php echo $status_filter === 'paid' ? 'selected' : ''; ?>>Paid</option>
-                        <option value="unpaid" <?php echo $status_filter === 'unpaid' ? 'selected' : ''; ?>>Unpaid</option>
+                        <option value="canceled" <?php echo $status_filter === 'canceled' ? 'selected' : ''; ?>>Canceled</option>
                     </select>
                     <button type="submit"><i class="fas fa-search"></i> Search</button>
                 </form>
@@ -199,7 +213,7 @@ $next_order = $sort_order === 'asc' ? 'desc' : 'asc';
                         <th>#</th>
                         <th class="sortable"><a href="?search=<?php echo $search; ?>&status=<?php echo $status_filter; ?>&sort=name&order=<?php echo $next_order; ?>">Member Name <i class="fas fa-sort-<?php echo $sort_column === 'name' ? $sort_order : 'asc'; ?>"></i></a></th>
                         <th class="sortable"><a href="?search=<?php echo $search; ?>&status=<?php echo $status_filter; ?>&sort=email&order=<?php echo $next_order; ?>">Email <i class="fas fa-sort-<?php echo $sort_column === 'email' ? $sort_order : 'asc'; ?>"></i></a></th>
-                        <th class="sortable"><a href="?search=<?php echo $search; ?>&status=<?php echo $status_filter; ?>&sort=amount&order=<?php echo $next_order; ?>">Amount <i class="fas fa-sort-<?php echo $sort_column === 'amount' ? $sort_order : 'asc'; ?>"></i></a></th>
+                        <th class="sortable"><a href="?search=<?php echo $search; ?>&status=<?php echo $status_filter; ?>&sort=amount&order=<?php echo $next_order; ?>">Amount (RM) <i class="fas fa-sort-<?php echo $sort_column === 'amount' ? $sort_order : 'asc'; ?>"></i></a></th>
                         <th class="sortable"><a href="?search=<?php echo $search; ?>&status=<?php echo $status_filter; ?>&sort=payment_status&order=<?php echo $next_order; ?>">Status <i class="fas fa-sort-<?php echo $sort_column === 'payment_status' ? $sort_order : 'asc'; ?>"></i></a></th>
                         <th class="sortable"><a href="?search=<?php echo $search; ?>&status=<?php echo $status_filter; ?>&sort=payment_date&order=<?php echo $next_order; ?>">Payment Date <i class="fas fa-sort-<?php echo $sort_column === 'payment_date' ? $sort_order : 'asc'; ?>"></i></a></th>
                         <th>Start Date</th>
@@ -214,11 +228,11 @@ $next_order = $sort_order === 'asc' ? 'desc' : 'asc';
                                 <td><?php echo $counter++; ?></td>
                                 <td><?php echo $row['name']; ?></td>
                                 <td><?php echo $row['email']; ?></td>
-                                <td>RM<?php echo number_format($row['amount'], 2); ?></td>
-                                <td><?php echo ucfirst($row['payment_status']); ?></td>
+                                <td><?php echo $row['amount'] > 0 ? "RM" . number_format($row['amount'], 2) : "N/A"; ?></td>
+                                <td class="status-<?php echo $row['payment_status']; ?>"><?php echo ucfirst($row['payment_status']); ?></td>
                                 <td><?php echo $row['payment_date']; ?></td>
-                                <td><?php echo $row['start_date']; ?></td>
-                                <td><?php echo $row['end_date']; ?></td>
+                                <td><?php echo $row['start_date'] ?: 'N/A'; ?></td>
+                                <td><?php echo $row['end_date'] ?: 'N/A'; ?></td>
                             </tr>
                         <?php endwhile; ?>
                     <?php else: ?>

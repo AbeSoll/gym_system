@@ -20,8 +20,8 @@ $dashboardData = $conn->query("
     SELECT 
         (SELECT COUNT(*) FROM members) AS totalMembers,
         (SELECT SUM(amount) FROM payments WHERE payment_status = 'paid') AS totalPayments,
-        (SELECT COUNT(*) FROM member_packages WHERE status = 'active') AS activeMembers,
-        (SELECT COUNT(*) FROM member_packages WHERE status = 'expired') AS inactiveMembers
+        (SELECT COUNT(*) FROM members WHERE status = 'active') AS activeMembers,
+        (SELECT COUNT(*) FROM members WHERE status = 'inactive') AS inactiveMembers
 ")->fetch_assoc();
 
 $totalMembers = $dashboardData['totalMembers'];
@@ -42,30 +42,40 @@ while ($row = $monthlyPaymentsQuery->fetch_assoc()) {
     $monthlyPaymentsData[] = $row;
 }
 
-// Fetch gender data for pie charts
-$activeGenderQuery = $conn->query("
-    SELECT m.gender, COUNT(*) AS total
-    FROM members m
-    JOIN member_packages mp ON m.id = mp.member_id
-    WHERE mp.status = 'active'
-    GROUP BY m.gender
-");
+// Fetch gender data for active members pie chart
 $activeGenderData = [];
+$activeGenderQuery = $conn->query("
+    SELECT gender, COUNT(*) AS total 
+    FROM members 
+    WHERE status = 'active' 
+    GROUP BY gender
+");
 while ($row = $activeGenderQuery->fetch_assoc()) {
     $activeGenderData[$row['gender']] = $row['total'];
 }
 
-$nonActiveGenderQuery = $conn->query("
-    SELECT m.gender, COUNT(*) AS total
+// Fetch gender data for inactive members pie chart
+$inactiveGenderData = [];
+$inactiveGenderQuery = $conn->query("
+    SELECT gender, COUNT(*) AS total 
+    FROM members 
+    WHERE status = 'inactive' 
+    GROUP BY gender
+");
+while ($row = $inactiveGenderQuery->fetch_assoc()) {
+    $inactiveGenderData[$row['gender']] = $row['total'];
+}
+
+// Fetch recent active memberships
+$recentMembersQuery = $conn->query("
+    SELECT m.name, m.email, mp.start_date
     FROM members m
     JOIN member_packages mp ON m.id = mp.member_id
-    WHERE mp.status = 'expired'
-    GROUP BY m.gender
+    WHERE m.status = 'active'
+    ORDER BY mp.start_date DESC 
+    LIMIT 5
 ");
-$nonActiveGenderData = [];
-while ($row = $nonActiveGenderQuery->fetch_assoc()) {
-    $nonActiveGenderData[$row['gender']] = $row['total'];
-}
+$recentActiveMembers = $recentMembersQuery->fetch_all(MYSQLI_ASSOC);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -93,7 +103,7 @@ while ($row = $nonActiveGenderQuery->fetch_assoc()) {
             <a href="dashboard.php" class="logo">Admin Dashboard</a>
         </div>
         <div class="profile">
-            <a href="profile.php"><i class="fas fa-user"></i> Admin Profile</a>
+            <a href="#"><i class="fas fa-user"></i> Admin Profile</a>
         </div>
     </nav>
 </header>
@@ -112,20 +122,25 @@ while ($row = $nonActiveGenderQuery->fetch_assoc()) {
         <h2>Welcome, Admin!</h2>
         <div class="stats">
             <div class="stat-card" style="background: linear-gradient(135deg,rgb(142, 255, 255) 0%,rgb(150, 173, 255) 100%);">
-            <h3><i class="fas fa-users"></i> Total Members</h3>
-            <p style="font-size: 1.6em; font-weight: bold;"><?php echo $totalMembers; ?></p>
+                <h3><i class="fas fa-users"></i> Total Members</h3>
+                <p style="font-size: 1.6em; font-weight: bold;"><?php echo $totalMembers; ?></p>
             </div>
             <div class="stat-card" style="background: linear-gradient(135deg,rgb(98, 255, 203) 0%,rgb(137, 204, 255) 100%);">
-            <h3><i class="fas fa-dollar-sign"></i> Total Payments</h3>
-            <p style="font-size: 1.6em; font-weight: bold;">RM<?php echo number_format($totalPayments, 2); ?></p>
+                <h3><i class="fas fa-dollar-sign"></i> Total Payments</h3>
+                <p style="font-size: 1.6em; font-weight: bold;">RM<?php echo number_format($totalPayments, 2); ?></p>
             </div>
             <div class="stat-card" style="background: linear-gradient(135deg,rgb(255, 176, 176) 0%,rgb(248, 255, 144) 100%);">
-            <h3><i class="fas fa-user-check"></i> Active Members</h3>
-            <p style="font-size: 1.6em; font-weight: bold;"><?php echo $activeMembers; ?></p>
+                <h3><i class="fas fa-user-check"></i> Active Members</h3>
+                <p style="font-size: 1.6em; font-weight: bold;"><?php echo $activeMembers; ?></p>
             </div>
             <div class="stat-card" style="background: linear-gradient(135deg,rgb(203, 174, 255) 0%,rgb(255, 180, 213) 100%);">
-            <h3><i class="fas fa-user-times"></i> Inactive Members</h3>
-            <p style="font-size: 1.6em; font-weight: bold;"><?php echo array_sum($nonActiveGenderData); ?></p>
+                <h3><i class="fas fa-user-times"></i> Inactive Members</h3>
+                <p style="font-size: 1.6em; font-weight: bold;">
+                    <?php
+                    $inactiveMembersCount = $conn->query("SELECT COUNT(*) AS total FROM members WHERE status = 'inactive'")->fetch_assoc()['total'];
+                    echo $inactiveMembersCount;
+                    ?>
+                </p>
             </div>
         </div>
 
@@ -137,10 +152,10 @@ while ($row = $nonActiveGenderQuery->fetch_assoc()) {
                 <canvas id="activeGenderChart"></canvas>
             </div>
 
-            <!-- Non-Active Members Pie Chart -->
+            <!-- Inactive Members Pie Chart -->
             <div class="box">
-                <h3>Non-Active Members by Gender</h3>
-                <canvas id="nonActiveGenderChart"></canvas>
+                <h3>Inactive Members by Gender</h3>
+                <canvas id="inactiveGenderChart"></canvas>
             </div>
 
             <!-- Recent Active Members -->
@@ -152,7 +167,7 @@ while ($row = $nonActiveGenderQuery->fetch_assoc()) {
                         SELECT m.name, m.email, mp.start_date
                         FROM members m
                         JOIN member_packages mp ON m.id = mp.member_id
-                        WHERE mp.status = 'active'
+                        WHERE m.status = 'active'
                         ORDER BY mp.start_date DESC 
                         LIMIT 5
                     ");
@@ -171,9 +186,8 @@ while ($row = $nonActiveGenderQuery->fetch_assoc()) {
         </div>
     </main>
 </div>
-
 <script>
-    // Active Members by Gender Chart
+    // Active Members by Gender
     new Chart(document.getElementById('activeGenderChart').getContext('2d'), {
         type: 'pie',
         data: {
@@ -185,19 +199,19 @@ while ($row = $nonActiveGenderQuery->fetch_assoc()) {
         }
     });
 
-    // Non-Active Members by Gender Chart
-    new Chart(document.getElementById('nonActiveGenderChart').getContext('2d'), {
+    // Inactive Members by Gender
+    new Chart(document.getElementById('inactiveGenderChart').getContext('2d'), {
         type: 'pie',
         data: {
-            labels: <?php echo json_encode(array_keys($nonActiveGenderData)); ?>,
+            labels: <?php echo json_encode(array_keys($inactiveGenderData)); ?>,
             datasets: [{
-                data: <?php echo json_encode(array_values($nonActiveGenderData)); ?>,
+                data: <?php echo json_encode(array_values($inactiveGenderData)); ?>,
                 backgroundColor: ['#ffcd56', '#ff6384']
             }]
         }
     });
 
-    // Monthly Payments Line Chart
+    // Monthly Payments
     new Chart(document.getElementById('paymentChart').getContext('2d'), {
         type: 'line',
         data: {

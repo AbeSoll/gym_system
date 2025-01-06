@@ -2,7 +2,7 @@
 session_start();
 include '../includes/db.php';
 
-// Ensure member is logged in
+// Ensure member is logged in and package ID is provided
 if (!isset($_SESSION['member_id']) || !isset($_GET['package_id'])) {
     header('Location: packages.php');
     exit();
@@ -21,28 +21,47 @@ if (!$package) {
 }
 
 // Payment processing
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $bank_name = $_POST['bank_name'];
-    $price = $package['price'];
-    $start_date = date('Y-m-d');
-    $end_date = date('Y-m-d', strtotime("+{$package['duration']} months"));
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
+    $action = $_POST['action'];
+    $bank_name = $_POST['bank_name'] ?? null;
 
-    $conn->begin_transaction();
-    try {
-        // Insert into member_packages
-        $conn->query("INSERT INTO member_packages (member_id, package_id, start_date, end_date, status)
-                      VALUES ($member_id, $package_id, '$start_date', '$end_date', 'active')");
+    if ($action === 'proceed') {
+        // Proceed with payment
+        $price = $package['price'];
+        $start_date = date('Y-m-d');
+        $end_date = date('Y-m-d', strtotime("+{$package['duration']} months"));
 
-        // Insert into payments
-        $conn->query("INSERT INTO payments (member_id, package_id, payment_status, amount, bank_name)
-                      VALUES ($member_id, $package_id, 'paid', $price, '$bank_name')");
+        $conn->begin_transaction();
+        try {
+            // Insert into member_packages
+            $conn->query("INSERT INTO member_packages (member_id, package_id, start_date, end_date, status)
+                          VALUES ($member_id, $package_id, '$start_date', '$end_date', 'active')");
 
-        $conn->commit();
-        header('Location: payment_history.php?success=1');
-        exit();
-    } catch (Exception $e) {
-        $conn->rollback();
-        $error = "Payment failed. Please try again.";
+            // Insert into payments
+            $conn->query("INSERT INTO payments (member_id, package_id, payment_status, amount, bank_name)
+                          VALUES ($member_id, $package_id, 'paid', $price, '$bank_name')");
+
+            // Update member status to active
+            $conn->query("UPDATE members SET status = 'active' WHERE id = $member_id");
+
+            $conn->commit();
+            header('Location: payment_history.php?success=1');
+            exit();
+        } catch (Exception $e) {
+            $conn->rollback();
+            $error = "Payment failed. Please try again.";
+        }
+    } elseif ($action === 'cancel') {
+        try {
+            // Record canceled payment
+            $conn->query("INSERT INTO payments (member_id, package_id, payment_status, amount, bank_name)
+                          VALUES ($member_id, $package_id, 'canceled', 0, NULL)");
+
+            header('Location: payment_history.php?canceled=1');
+            exit();
+        } catch (Exception $e) {
+            $error = "Failed to record cancellation. Please try again.";
+        }
     }
 }
 ?>
@@ -54,24 +73,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <title>Billing Payment</title>
     <link rel="stylesheet" href="../css/member.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <style>
-        body {
-            font-family: 'Poppins', sans-serif;
-            background-color: #f4f4f4;
-            margin: 0;
-            padding: 0;
-        }
-        .container {
+        .container-payments {
             max-width: 800px;
             margin: 50px auto;
             padding: 20px;
             background: white;
             border-radius: 10px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-        .container h2 {
-            text-align: center;
         }
         form {
             display: flex;
@@ -87,13 +96,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             border-radius: 5px;
             border: 1px solid #ddd;
         }
-        button {
+        .btn-proceed {
             background-color: #007bff;
             color: white;
             cursor: pointer;
         }
-        button:hover {
+        .btn-proceed:hover {
             background-color: #0056b3;
+        }
+        .btn-cancel {
+            background-color: #dc3545;
+            color: white;
+            cursor: pointer;
+        }
+        .btn-cancel:hover {
+            background-color: #a71d2a;
         }
         .popup {
             position: fixed;
@@ -122,11 +139,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </style>
 </head>
 <body>
-<div class="container">
+<div class="container-payments">
     <h2>Billing Payment</h2>
-    <p><strong>Package:</strong> <?php echo $package['name']; ?></p>
+    <p><strong>Package:</strong> <?php echo htmlspecialchars($package['name']); ?></p>
     <p><strong>Price:</strong> RM<?php echo number_format($package['price'], 2); ?></p>
     <form id="paymentForm" method="POST">
+        <input type="hidden" name="action" id="formAction">
         <label for="bank_name">Choose Bank:</label>
         <select name="bank_name" id="bank_name" required>
             <option value="">Select your bank</option>
@@ -141,25 +159,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <option value="Bank Simpanan Nasional">Bank Simpanan Nasional (BSN)</option>
             <option value="HSBC Bank">HSBC Bank</option>
         </select>
-        <button type="button" onclick="showConfirmation()">Proceed to Payment</button>
+        <button type="button" class="btn-proceed" onclick="showPopup('proceed')">Proceed to Payment</button>
+        <button type="button" class="btn-cancel" onclick="showPopup('cancel')">Cancel</button>
     </form>
 </div>
 
 <div class="popup" id="confirmationPopup">
     <div class="popup-content">
-        <p>Are you sure you want to proceed with the payment?</p>
-        <button id="confirmYes">Yes</button>
-        <button id="confirmNo">No</button>
+        <p id="popupMessage"></p>
+        <button class="btn-proceed" id="confirmYes">Yes</button>
+        <button class="btn-cancel" id="confirmNo">No</button>
     </div>
 </div>
-
+<footer>
+    <p>&copy; <?php echo date("Y"); ?> Gym Membership System. All rights reserved.</p>
+</footer>
 <script>
-    function showConfirmation() {
+    function showPopup(action) {
+        const message = action === 'proceed'
+            ? "Are you sure you want to proceed with the payment?"
+            : "Are you sure you want to cancel the payment?";
+        document.getElementById('popupMessage').innerText = message;
+        document.getElementById('formAction').value = action;
         document.getElementById('confirmationPopup').style.display = 'flex';
     }
+
     document.getElementById('confirmYes').addEventListener('click', function () {
         document.getElementById('paymentForm').submit();
     });
+
     document.getElementById('confirmNo').addEventListener('click', function () {
         document.getElementById('confirmationPopup').style.display = 'none';
     });

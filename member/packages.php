@@ -8,11 +8,19 @@ if (!isset($_SESSION['member_id'])) {
     exit();
 }
 
-// Fetch membership packages from the database
+// Fetch current active package for the logged-in member
+$member_id = $_SESSION['member_id'];
+$active_package_query = $conn->query("
+    SELECT member_packages.id AS package_id, member_packages.end_date 
+    FROM member_packages 
+    WHERE member_id = $member_id AND status = 'active'
+");
+$active_package = $active_package_query->fetch_assoc();
+
+// Fetch all membership packages from the database
 $package_query = $conn->query("SELECT id, name, price, duration FROM packages");
 $packages = $package_query->fetch_all(MYSQLI_ASSOC);
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -23,12 +31,6 @@ $packages = $package_query->fetch_all(MYSQLI_ASSOC);
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body {
-            font-family: 'Poppins', sans-serif;
-            background-color: #f9f9f9;
-            margin: 0;
-            padding: 0;
-        }
         .container {
             max-width: 1200px;
             margin: 0 auto;
@@ -86,13 +88,31 @@ $packages = $package_query->fetch_all(MYSQLI_ASSOC);
 <?php include 'includes/header.php'; ?><br><br>
 <div class="container">
     <h1>Gym Membership Packages</h1>
+
+    <!-- Active Package Alert -->
+    <?php if ($active_package): ?>
+        <p style="color: red; font-weight: bold;">
+            You currently have an active package. You can only purchase a new package after your current one expires on 
+            <strong><?php echo htmlspecialchars($active_package['end_date']); ?></strong>.
+        </p>
+    <?php endif; ?>
+
     <div class="packages">
         <?php foreach ($packages as $package): ?>
             <div class="package">
                 <h3><?php echo htmlspecialchars($package['name']); ?></h3>
                 <p>Duration: <?php echo htmlspecialchars($package['duration']); ?> month(s)</p>
                 <p class="price">RM <?php echo htmlspecialchars(number_format($package['price'], 2)); ?></p>
-                <button onclick="proceedToPayment(<?php echo $package['id']; ?>, '<?php echo $package['name']; ?>')">Join</button>
+                <button 
+                    <?php if ($active_package): ?> 
+                        disabled 
+                        style="background: #ccc; cursor: not-allowed;" 
+                    <?php else: ?>
+                        onclick="proceedToPayment(<?php echo $package['id']; ?>, '<?php echo $package['name']; ?>')"
+                    <?php endif; ?>
+                >
+                    Join
+                </button>
             </div>
         <?php endforeach; ?>
     </div>

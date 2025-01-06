@@ -11,28 +11,30 @@ if (!isset($_SESSION['member_id'])) {
 // Fetch member ID
 $member_id = $_SESSION['member_id'];
 
-// Fetch payment history
-$query = "
-    SELECT 
-        payments.id, 
-        packages.name AS package_name, 
-        payments.amount, 
-        payments.bank_name, 
-        payments.payment_date, 
-        payments.payment_status 
-    FROM payments
-    JOIN packages ON payments.package_id = packages.id
-    WHERE payments.member_id = $member_id
-    ORDER BY payments.payment_date DESC
-";
-$result = $conn->query($query);
+try {
+    // Fetch payment history
+    $query = "
+        SELECT 
+            payments.id, 
+            packages.name AS package_name, 
+            payments.amount, 
+            payments.bank_name, 
+            payments.payment_date, 
+            payments.payment_status 
+        FROM payments
+        JOIN packages ON payments.package_id = packages.id
+        WHERE payments.member_id = ?
+        ORDER BY payments.payment_date DESC
+    ";
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param("i", $member_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
 
-// Check for query errors
-if (!$result) {
-    die("Query failed: " . $conn->error);
+    $payments = $result->fetch_all(MYSQLI_ASSOC);
+} catch (Exception $e) {
+    $error_message = "An error occurred while fetching payment history. Please try again later.";
 }
-
-$payments = $result->fetch_all(MYSQLI_ASSOC);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -74,15 +76,34 @@ $payments = $result->fetch_all(MYSQLI_ASSOC);
         }
         table th {
             background-color: #007bff;
+            color: #fff;
             font-weight: bold;
+        }
+        table tr:hover {
+            background-color: #f1f1f1;
         }
         .status-paid {
             color: green;
             font-weight: bold;
         }
-        .status-cancelled {
+        .status-canceled {
             color: red;
             font-weight: bold;
+        }
+        .status-pending {
+            color: orange;
+            font-weight: bold;
+        }
+        .no-history {
+            text-align: center;
+            font-size: 18px;
+            color: #888;
+            margin-top: 20px;
+        }
+        .error-message {
+            color: red;
+            text-align: center;
+            font-size: 18px;
         }
     </style>
 </head>
@@ -90,7 +111,9 @@ $payments = $result->fetch_all(MYSQLI_ASSOC);
 <?php include 'includes/header.php'; ?><br><br><br>
 <div class="container">
     <h1>Payment History</h1>
-    <?php if (count($payments) > 0): ?>
+    <?php if (isset($error_message)): ?>
+        <p class="error-message"><?php echo htmlspecialchars($error_message); ?></p>
+    <?php elseif (count($payments) > 0): ?>
         <table>
             <thead>
                 <tr>
@@ -108,9 +131,13 @@ $payments = $result->fetch_all(MYSQLI_ASSOC);
                         <td><?php echo $index + 1; ?></td>
                         <td><?php echo htmlspecialchars($payment['package_name']); ?></td>
                         <td><?php echo number_format($payment['amount'], 2); ?></td>
-                        <td><?php echo htmlspecialchars($payment['bank_name']); ?></td>
+                        <td><?php echo !empty($payment['bank_name']) ? htmlspecialchars($payment['bank_name']) : 'N/A'; ?></td>
                         <td><?php echo htmlspecialchars($payment['payment_date']); ?></td>
-                        <td class="<?php echo $payment['payment_status'] === 'paid' ? 'status-paid' : 'status-cancelled'; ?>">
+                        <td class="<?php 
+                            if ($payment['payment_status'] === 'paid') echo 'status-paid';
+                            elseif ($payment['payment_status'] === 'canceled') echo 'status-canceled';
+                            else echo 'status-pending';
+                        ?>">
                             <?php echo ucfirst($payment['payment_status']); ?>
                         </td>
                     </tr>
@@ -118,7 +145,7 @@ $payments = $result->fetch_all(MYSQLI_ASSOC);
             </tbody>
         </table>
     <?php else: ?>
-        <p>No payment history found.</p>
+        <p class="no-history">No payment history found.</p>
     <?php endif; ?>
 </div>
 <footer>

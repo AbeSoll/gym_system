@@ -89,9 +89,9 @@ $next_order = $sort_order === 'asc' ? 'desc' : 'asc';
             border-collapse: collapse;
         }
         table th, table td {
+            padding: 10px;
+            border: 1px solid #ddd;
             text-align: left;
-            padding: 15px;
-            border-bottom: 1px solid #ddd;
             font-size: 15px; /* Reduce font size */
         }
         table th {
@@ -137,9 +137,11 @@ $next_order = $sort_order === 'asc' ? 'desc' : 'asc';
         }
         .status-active {
             color: green;
+            font-weight: bold;
         }
         .status-inactive {
             color: red;
+            font-weight: bold;
         }
     </style>
 </head>
@@ -155,7 +157,7 @@ $next_order = $sort_order === 'asc' ? 'desc' : 'asc';
             <a href="dashboard.php" class="logo">Admin Dashboard</a>
         </div>
         <div class="profile">
-            <a href="profile.php"><i class="fas fa-user"></i> Admin Profile</a>
+            <a href="#"><i class="fas fa-user"></i> Admin Profile</a>
         </div>
     </nav>
 </header>
@@ -187,31 +189,25 @@ $next_order = $sort_order === 'asc' ? 'desc' : 'asc';
                 <thead>
                     <tr>
                         <th>#</th>
-                        <th class="sortable">
+                        <th>
                             <a href="?search=<?php echo $search; ?>&status=<?php echo $filter; ?>&sort=name&order=<?php echo $next_order; ?>">
                                 Name <i class="fas fa-sort-<?php echo $sort_column === 'name' ? $sort_order : 'asc'; ?>"></i>
                             </a>
                         </th>
-                        <th class="sortable">
+                        <th>
                             <a href="?search=<?php echo $search; ?>&status=<?php echo $filter; ?>&sort=email&order=<?php echo $next_order; ?>">
                                 Email <i class="fas fa-sort-<?php echo $sort_column === 'email' ? $sort_order : 'asc'; ?>"></i>
                             </a>
                         </th>
-                        <th class="sortable">
+                        <th>
                             <a href="?search=<?php echo $search; ?>&status=<?php echo $filter; ?>&sort=phone&order=<?php echo $next_order; ?>">
                                 Phone <i class="fas fa-sort-<?php echo $sort_column === 'phone' ? $sort_order : 'asc'; ?>"></i>
                             </a>
                         </th>
-                        <th class="sortable">
-                            <a href="?search=<?php echo $search; ?>&status=<?php echo $filter; ?>&sort=address&order=<?php echo $next_order; ?>">
-                                Address <i class="fas fa-sort-<?php echo $sort_column === 'address' ? $sort_order : 'asc'; ?>"></i>
-                            </a>
+                        <th>
+                            Address
                         </th>
-                            <th class="sortable">
-                            <a href="?search=<?php echo $search; ?>&status=<?php echo $filter; ?>&sort=address&order=<?php echo $next_order; ?>">    
-                                Status <i class="fas fa-sort-<?php echo $sort_column === 'status' ? $sort_order : 'asc'; ?>"></i>
-                            </a>
-                        </th>
+                        <th>Status</th>
                     </tr>
                 </thead>
                 <tbody>

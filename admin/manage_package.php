@@ -175,7 +175,7 @@ $packages = $conn->query("SELECT * FROM packages")->fetch_all(MYSQLI_ASSOC);
             <a href="dashboard.php" class="logo">Admin Dashboard</a>
         </div>
         <div class="profile">
-            <a href="profile.php"><i class="fas fa-user"></i> Admin Profile</a>
+            <a href="#"><i class="fas fa-user"></i> Admin Profile</a>
         </div>
     </nav>
 </header>

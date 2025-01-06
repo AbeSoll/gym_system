@@ -17,24 +17,55 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $phone = trim($_POST['phone']);
     $address = trim($_POST['address']);
 
-    if (empty($name) || empty($email) || empty($phone) || empty($address)) {
-        $error = "All fields are required.";
-    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        $error = "Invalid email format.";
-    } elseif (!preg_match('/^[0-9]+$/', $phone)) {
-        $error = "Phone number must contain only digits.";
-    } else {
-        $stmt = $conn->prepare("UPDATE members SET name = ?, email = ?, phone = ?, address = ? WHERE id = ?");
-        $stmt->bind_param("ssssi", $name, $email, $phone, $address, $member_id);
+    $upload_dir = "../uploads/";
+    $profile_picture = $member['profile_picture']; // Default to existing profile picture
 
-        if ($stmt->execute()) {
-            $success = "Profile updated successfully.";
-            $member_query = $conn->query("SELECT * FROM members WHERE id = $member_id");
-            $member = $member_query->fetch_assoc();
+    // Handle profile picture upload
+    if (isset($_FILES['profile_picture']) && $_FILES['profile_picture']['error'] == UPLOAD_ERR_OK) {
+        $file_tmp = $_FILES['profile_picture']['tmp_name'];
+        $file_name = uniqid() . "_" . basename($_FILES['profile_picture']['name']);
+        $file_path = $upload_dir . $file_name;
+
+        // Check file type and size (max 5MB)
+        $file_type = pathinfo($file_path, PATHINFO_EXTENSION);
+        if (!in_array(strtolower($file_type), ['jpg', 'jpeg', 'png'])) {
+            $error = "Only JPG, JPEG, or PNG files are allowed.";
+        } elseif ($_FILES['profile_picture']['size'] > 5 * 1024 * 1024) {
+            $error = "File size must be less than 5MB.";
+        } elseif (move_uploaded_file($file_tmp, $file_path)) {
+            // If file upload is successful, update profile picture
+            $profile_picture = $file_name;
+
+            // Remove old profile picture if it exists
+            if ($member['profile_picture'] && file_exists($upload_dir . $member['profile_picture'])) {
+                unlink($upload_dir . $member['profile_picture']);
+            }
         } else {
-            $error = "Failed to update profile. Please try again.";
+            $error = "Failed to upload the image.";
         }
-        $stmt->close();
+    }
+
+    // Validation and Update
+    if (!isset($error)) {
+        if (empty($name) || empty($email) || empty($phone) || empty($address)) {
+            $error = "All fields are required.";
+        } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $error = "Invalid email format.";
+        } elseif (!preg_match('/^[0-9]+$/', $phone)) {
+            $error = "Phone number must contain only digits.";
+        } else {
+            $stmt = $conn->prepare("UPDATE members SET name = ?, email = ?, phone = ?, address = ?, profile_picture = ? WHERE id = ?");
+            $stmt->bind_param("sssssi", $name, $email, $phone, $address, $profile_picture, $member_id);
+
+            if ($stmt->execute()) {
+                $success = "Profile updated successfully.";
+                $member_query = $conn->query("SELECT * FROM members WHERE id = $member_id");
+                $member = $member_query->fetch_assoc();
+            } else {
+                $error = "Failed to update profile. Please try again.";
+            }
+            $stmt->close();
+        }
     }
 }
 ?>
@@ -47,173 +78,90 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <link rel="stylesheet" href="../css/member.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css">
     <style>
-        .container_profile {
-            max-width: 600px;
-            margin: 80px auto;
-            padding: 30px 150px;
-            background: white;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            border-radius: 10px;
+        body {
+            font-family: 'Poppins', sans-serif;
         }
-        .container h2 {
-            margin-bottom: 20px;
-            font-size: 24px;
-            text-align: center;
+        .img-account-profile {
+            height: 10rem;
+            width: 10rem;
+            object-fit: cover;
         }
-        .form-group {
+        .rounded-circle {
+            border-radius: 50% !important;
+        }
+        .card {
+            box-shadow: 0 0.15rem 1.75rem 0 rgb(33 40 50 / 15%);
+        }
+        .form-control {
             margin-bottom: 15px;
-        }
-        .form-group label {
-            display: block;
-            font-weight: 600;
-            margin-bottom: 5px;
-        }
-        .form-group input, .form-group textarea {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-        }
-        .form-group textarea {
-            resize: none;
-            height: 100px;
-        }
-        .btn {
-            display: block;
-            width: 100%;
-            padding: 10px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            font-size: 16px;
-            cursor: pointer;
-            text-align: center;
-        }
-        .btn:hover {
-            background-color: #0056b3;
-        }
-        .message {
-            text-align: center;
-            margin-bottom: 15px;
-        }
-        .message.success {
-            color: green;
-        }
-        .message.error {
-            color: red;
-        }
-        .confirmation-popup-profile {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            display: none;
-        }
-        .confirmation-popup-profile .popup-content-profile {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            text-align: center;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-        .confirmation-popup-profile .popup-content-profile p {
-            margin-bottom: 20px;
-            font-size: 18px;
-        }
-        .confirmation-popup-profile .popup-content-profile button {
-            margin: 0 10px;
-            padding: 10px 20px;
-            font-size: 16px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-        .confirmation-popup-profile .popup-content-profile button#profile-confirm-yes {
-            background-color: #007bff;
-            color: white;
-        }
-        .confirmation-popup-profile .popup-content-profile button#profile-confirm-yes:hover {
-            background-color: #0056b3;
-        }
-        .confirmation-popup-profile .popup-content-profile button#profile-confirm-no {
-            background-color: #ccc;
-            color: black;
-        }
-        .confirmation-popup-profile .popup-content-profile button#profile-confirm-no:hover {
-            background-color: #999;
         }
     </style>
 </head>
 <body>
 <?php include 'includes/header.php'; ?>
-<div class="container_profile">
-    <h2>My Profile</h2>
-    <?php if (isset($success)): ?>
-        <p class="message success"><?php echo $success; ?></p>
-    <?php elseif (isset($error)): ?>
-        <p class="message error"><?php echo $error; ?></p>
-    <?php endif; ?>
-    <form id="profileForm" method="POST">
-        <div class="form-group">
-            <label for="name">Full Name</label>
-            <input type="text" id="name" name="name" value="<?php echo htmlspecialchars($member['name']); ?>" required>
+<div class="container-xl px-4 mt-4">
+    <div class="row">
+        <div class="col-xl-4">
+            <!-- Profile picture card -->
+            <div class="card mb-4">
+                <div class="card-header">Profile Picture</div>
+                <div class="card-body text-center">
+                    <img class="img-account-profile rounded-circle mb-2" 
+                         src="<?php echo $member['profile_picture'] ? "../uploads/" . $member['profile_picture'] : '../images/default-avatar.png'; ?>" 
+                         alt="Profile Picture">
+                    <form id="profileForm" method="POST" enctype="multipart/form-data">
+                        <input type="file" name="profile_picture" accept="image/*" class="form-control">
+                </div>
+            </div>
         </div>
-        <div class="form-group">
-            <label for="email">Email</label>
-            <input type="email" id="email" name="email" value="<?php echo htmlspecialchars($member['email']); ?>" required>
+        <div class="col-xl-8">
+            <!-- Account details card -->
+            <div class="card mb-4">
+                <div class="card-header">Account Details</div>
+                <div class="card-body">
+                    <?php if (isset($success)): ?>
+                        <div class="alert alert-success"><?php echo $success; ?></div>
+                    <?php elseif (isset($error)): ?>
+                        <div class="alert alert-danger"><?php echo $error; ?></div>
+                    <?php endif; ?>
+                        <input class="form-control" type="text" name="name" value="<?php echo htmlspecialchars($member['name']); ?>" placeholder="Full Name" required>
+                        <input class="form-control" type="email" name="email" value="<?php echo htmlspecialchars($member['email']); ?>" placeholder="Email" required>
+                        <input class="form-control" type="text" name="phone" value="<?php echo htmlspecialchars($member['phone']); ?>" placeholder="Phone" required>
+                        <textarea class="form-control" name="address" placeholder="Address" required><?php echo htmlspecialchars($member['address']); ?></textarea>
+                        <button type="button" class="btn btn-primary" id="saveChangesButton">Save Changes</button>
+                    </form>
+                </div>
+            </div>
         </div>
-        <div class="form-group">
-            <label for="phone">Phone</label>
-            <input type="text" id="phone" name="phone" value="<?php echo htmlspecialchars($member['phone']); ?>" required>
-        </div>
-        <div class="form-group">
-            <label for="address">Address</label>
-            <textarea id="address" name="address" required><?php echo htmlspecialchars($member['address']); ?></textarea>
-        </div>
-        <button type="button" class="btn" onclick="showConfirmationPopupProfile()">Update Profile</button>
-    </form>
-</div>
-<div class="confirmation-popup-profile" id="confirmationPopupProfile">
-    <div class="popup-content-profile">
-        <p>Are you sure you want to update your profile?</p>
-        <button id="profile-confirm-yes">Yes</button>
-        <button id="profile-confirm-no">No</button>
     </div>
 </div>
-<footer>
-    <p>&copy; <?php echo date("Y"); ?> Gym Membership System. All rights reserved.</p>
-</footer>
+<div class="confirmation-popup" id="confirmationPopup" style="display: none;">
+    <div class="popup-content">
+        <p>Are you sure you want to update your profile?</p>
+        <button class="btn btn-success" id="confirmYes">Yes</button>
+        <button class="btn btn-secondary" id="confirmNo">No</button>
+    </div>
+</div>
+<?php include '../includes/footer.php'; ?>
+<script src="../js/main.js"></script>
+<script src="../js/member.js"></script>
 <script>
-    const hamburger = document.getElementById('hamburger-menu');
-    const navLinks = document.getElementById('nav-links');
-    hamburger.addEventListener('click', () => {
-        navLinks.classList.toggle('active');
+    // Show confirmation popup when Save Changes is clicked
+    document.getElementById('saveChangesButton').addEventListener('click', function () {
+        document.getElementById('confirmationPopup').style.display = 'flex';
     });
 
-    function showConfirmationPopupProfile() {
-        document.getElementById('confirmationPopupProfile').style.display = 'flex';
-    }
-
-    document.getElementById('profile-confirm-yes').addEventListener('click', function () {
+    // Handle confirmation popup actions
+    document.getElementById('confirmYes').addEventListener('click', function () {
         document.getElementById('profileForm').submit();
     });
 
-    document.getElementById('profile-confirm-no').addEventListener('click', function () {
-        document.getElementById('confirmationPopupProfile').style.display = 'none';
+    document.getElementById('confirmNo').addEventListener('click', function () {
+        document.getElementById('confirmationPopup').style.display = 'none';
     });
 </script>
 
-<script src="../js/scrollUpButton.js"></script>
-<script src="../js/main.js"></script>
-<script src="../js/member.js"></script>
 </body>
 </html>
