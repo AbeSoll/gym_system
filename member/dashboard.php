@@ -74,7 +74,7 @@ $total_amount = $payment_data['total_amount'] ?? 0;
     <div class="card">
         <h3>Payment Summary</h3>
         <?php if ($total_payments > 0): ?>
-            <p>Total Payments Made: <?php echo $total_payments; ?></p>
+            <p>Total Payments Attempt: <?php echo $total_payments; ?></p>
             <p>Total Amount Paid: RM<?php echo number_format($total_amount, 2); ?></p>
         <?php else: ?>
             <p>No payments made yet. <a href="packages.php">Join a package</a> to start your fitness journey!</p>
