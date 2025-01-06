@@ -73,7 +73,6 @@ $packages = $conn->query("SELECT * FROM packages")->fetch_all(MYSQLI_ASSOC);
     <link rel="stylesheet" href="../css/admin.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <script src="../js/admin.js"></script>
     <style>
         .container_package {
             max-width: 800px;
@@ -262,7 +261,7 @@ $packages = $conn->query("SELECT * FROM packages")->fetch_all(MYSQLI_ASSOC);
         </form>
     </div>
 </div>
-
+<script src="../js/admin.js"></script>
 <script>
     function showForm(packageData = null) {
         const popup = document.getElementById('packagePopup');
