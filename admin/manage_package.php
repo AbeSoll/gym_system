@@ -8,11 +8,26 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
     exit();
 }
 
-// Hardcoded descriptions
+// Hardcoded descriptions and benefits
 $packageDescriptions = [
-    'Basic' => 'Access to gym equipment only.',
-    'Pro' => 'Access to gym equipment and group classes.',
-    'Premium' => 'All access: equipment, classes, and personal trainer sessions.'
+    'Basic' => [
+        'Access to gym equipment only',
+        'Open gym hours',
+        'Locker facilities'
+    ],
+    'Pro' => [
+        'Access to gym equipment and group classes',
+        'Priority booking for classes',
+        'Access to nutrition workshops',
+        'Locker facilities'
+    ],
+    'Premium' => [
+        'All access: equipment, classes, and personal trainer sessions',
+        'Unlimited guest passes',
+        'Access to premium locker rooms',
+        'Free workout apparel',
+        'Nutrition and wellness consultations'
+    ]
 ];
 
 // Handle Add/Update Package
@@ -175,7 +190,7 @@ $packages = $conn->query("SELECT * FROM packages")->fetch_all(MYSQLI_ASSOC);
             <a href="dashboard.php" class="logo">Admin Dashboard</a>
         </div>
         <div class="profile">
-            <a href="#"><i class="fas fa-user"></i> Admin Profile</a>
+            <a href="#"><i class="fas fa-user"></i> Admin</a>
         </div>
     </nav>
 </header>
@@ -191,19 +206,21 @@ $packages = $conn->query("SELECT * FROM packages")->fetch_all(MYSQLI_ASSOC);
 </aside><br>
 <div class="container_package">
     <h2>Manage Membership Packages</h2>
-
     <button class="btn btn-add" onclick="showForm()">+ Add Package</button>
 
     <?php foreach ($packages as $package): ?>
         <div class="package">
             <h3><?php echo htmlspecialchars($package['name']); ?></h3>
-            <p><strong>Description:</strong> <?php echo $packageDescriptions[$package['name']] ?? 'N/A'; ?></p>
             <p><strong>Price:</strong> RM<?php echo number_format($package['price'], 2); ?></p>
             <p><strong>Duration:</strong> <?php echo $package['duration']; ?> month(s)</p>
-            <div class="actions">
-                <button class="btn btn-edit" onclick="showForm(<?php echo htmlspecialchars(json_encode($package)); ?>)">Edit</button>
-                <button class="btn btn-delete" onclick="showDeletePopup(<?php echo $package['id']; ?>)">Delete</button>
-            </div>
+            <p><strong>Benefits:</strong></p>
+            <ul>
+                <?php foreach ($packageDescriptions[$package['name']] as $benefit): ?>
+                    <li><?php echo htmlspecialchars($benefit); ?></li>
+                <?php endforeach; ?>
+            </ul>
+            <button class="btn btn-edit" onclick="showForm(<?php echo htmlspecialchars(json_encode($package)); ?>)">Edit</button>
+            <button class="btn btn-delete" onclick="showDeletePopup(<?php echo $package['id']; ?>)">Delete</button>
         </div>
     <?php endforeach; ?>
 </div>

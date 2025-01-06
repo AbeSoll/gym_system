@@ -8,6 +8,28 @@ if (!isset($_SESSION['member_id'])) {
     exit();
 }
 
+// Hardcoded descriptions and benefits
+$packageDescriptions = [
+    'Basic' => [
+        'Access to gym equipment only',
+        'Open gym hours',
+        'Locker facilities'
+    ],
+    'Pro' => [
+        'Access to gym equipment and group classes',
+        'Priority booking for classes',
+        'Access to nutrition workshops',
+        'Locker facilities'
+    ],
+    'Premium' => [
+        'All access: equipment, classes, and personal trainer sessions',
+        'Unlimited guest passes',
+        'Access to premium locker rooms',
+        'Free workout apparel',
+        'Nutrition and wellness consultations'
+    ]
+];
+
 // Fetch current active package for the logged-in member
 $member_id = $_SESSION['member_id'];
 $active_package_query = $conn->query("
@@ -55,14 +77,26 @@ $packages = $package_query->fetch_all(MYSQLI_ASSOC);
             padding: 20px;
             width: 300px;
             text-align: center;
+            position: relative;
         }
         .package h3 {
             font-size: 24px;
             margin-bottom: 10px;
         }
-        .package p {
+        .package ul {
+            list-style-type: none;
+            padding: 0;
+            text-align: left;
+            margin: 10px 0;
+        }
+        .package ul li {
             margin: 5px 0;
-            font-size: 16px;
+            display: flex;
+            align-items: center;
+        }
+        .package ul li i {
+            color: green;
+            margin-right: 10px;
         }
         .package .price {
             font-size: 20px;
@@ -70,17 +104,28 @@ $packages = $package_query->fetch_all(MYSQLI_ASSOC);
             margin: 10px 0;
         }
         .package button {
-            background: #007bff;
+            background: #28a745; /* Green color */
             color: white;
             padding: 10px 20px;
             border: none;
             border-radius: 5px;
             font-size: 16px;
             cursor: pointer;
-            transition: background-color 0.3s;
+            transition: background-color 0.3s, transform 0.3s;
         }
+
         .package button:hover {
-            background: #0056b3;
+            background: #218838; /* Darker green on hover */
+            animation: shake 0.5s; /* Shake animation triggered on hover */
+        }
+
+        /* Shaking effect animation */
+        @keyframes shake {
+            0% { transform: rotate(0deg); }
+            25% { transform: rotate(10deg); }
+            50% { transform: rotate(-10deg); }
+            75% { transform: rotate(10deg); }
+            100% { transform: rotate(0deg); }
         }
     </style>
 </head>
@@ -101,12 +146,16 @@ $packages = $package_query->fetch_all(MYSQLI_ASSOC);
         <?php foreach ($packages as $package): ?>
             <div class="package">
                 <h3><?php echo htmlspecialchars($package['name']); ?></h3>
+                <ul>
+                    <?php foreach ($packageDescriptions[$package['name']] as $benefit): ?>
+                        <li><i class="fas fa-check"></i> <?php echo htmlspecialchars($benefit); ?></li>
+                    <?php endforeach; ?>
+                </ul>
                 <p>Duration: <?php echo htmlspecialchars($package['duration']); ?> month(s)</p>
                 <p class="price">RM <?php echo htmlspecialchars(number_format($package['price'], 2)); ?></p>
                 <button 
                     <?php if ($active_package): ?> 
                         disabled 
-                        style="background: #ccc; cursor: not-allowed;" 
                     <?php else: ?>
                         onclick="proceedToPayment(<?php echo $package['id']; ?>, '<?php echo $package['name']; ?>')"
                     <?php endif; ?>

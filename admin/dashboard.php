@@ -103,7 +103,7 @@ $recentActiveMembers = $recentMembersQuery->fetch_all(MYSQLI_ASSOC);
             <a href="dashboard.php" class="logo">Admin Dashboard</a>
         </div>
         <div class="profile">
-            <a href="#"><i class="fas fa-user"></i> Admin Profile</a>
+            <a href="#"><i class="fas fa-user"></i> Admin</a>
         </div>
     </nav>
 </header>

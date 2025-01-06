@@ -157,7 +157,7 @@ $next_order = $sort_order === 'asc' ? 'desc' : 'asc';
             <a href="dashboard.php" class="logo">Admin Dashboard</a>
         </div>
         <div class="profile">
-            <a href="#"><i class="fas fa-user"></i> Admin Profile</a>
+            <a href="#"><i class="fas fa-user"></i> Admin</a>
         </div>
     </nav>
 </header>
