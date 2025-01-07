@@ -30,8 +30,7 @@ Welcome to the Gym Membership Management System! This project is designed to str
 ## **Technologies Used**
 
 - **Frontend**:
-  - HTML5, CSS3, JavaScript
-  - Bootstrap 5 (for responsive design)
+  - HTML, CSS, JavaScript
   - Chart.js (for visualizing data)
 - **Backend**:
   - PHP
