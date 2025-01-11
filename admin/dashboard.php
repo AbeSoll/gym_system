@@ -228,7 +228,7 @@ $recentActiveMembers = $recentMembersQuery->fetch_all(MYSQLI_ASSOC);
     });
 </script>
 <footer>
-    <p>&copy; <?php echo date("Y"); ?> Gym Membership System. All rights reserved.</p>
+    <p>&copy; <?php echo date("Y"); ?> Mankraft Fitness Center. All rights reserved.</p>
 </footer>
 </body>
 </html>

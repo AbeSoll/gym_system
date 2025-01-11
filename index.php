@@ -1,7 +1,7 @@
 <?php include 'includes/header.php'; ?>
 <div class="hero-section">
     <div class="hero-content">
-        <h1>Welcome to the Gym Membership System</h1>
+        <h1>Welcome to the Mankraft Fitness Center</h1>
         <p>Your fitness journey starts here. Join us today and achieve your health and wellness goals!</p>
         <a href="auth/register.php" class="btn-primary">Join Now</a>
         <a href="auth/login.php" class="btn-secondary">Member Login</a>

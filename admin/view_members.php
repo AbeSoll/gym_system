@@ -180,7 +180,7 @@ $next_order = $sort_order === 'asc' ? 'desc' : 'asc';
                     <select name="status">
                         <option value="">All Status</option>
                         <option value="active" <?php echo $filter === 'active' ? 'selected' : ''; ?>>Active</option>
-                        <option value="expired" <?php echo $filter === 'expired' ? 'selected' : ''; ?>>Expired</option>
+                        <option value="expired" <?php echo $filter === 'inactive' ? 'selected' : ''; ?>>Inactive</option>
                     </select>
                     <button type="submit"><i class="fas fa-search"></i> Search</button>
                 </form>

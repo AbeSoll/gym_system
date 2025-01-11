@@ -186,7 +186,7 @@
     <section class="policy-section collapsible">
         <h2>Terms & Conditions</h2>
         <p>
-            By using our Gym Membership System, you agree to adhere to our rules and regulations. Violating any terms may result in suspension or termination of membership.
+            By using our Mankraft Fitness Center, you agree to adhere to our rules and regulations. Violating any terms may result in suspension or termination of membership.
         </p>
     </section>
 

@@ -172,7 +172,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     </div>
 </div>
 <footer>
-    <p>&copy; <?php echo date("Y"); ?> Gym Membership System. All rights reserved.</p>
+    <p>&copy; <?php echo date("Y"); ?> Mankraft Fitness Center. All rights reserved.</p>
 </footer>
 <script>
     function showPopup(action) {

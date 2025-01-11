@@ -2,7 +2,7 @@
 <div class="about-hero-section">
     <div class="about-hero-content">
         <h1>About Us</h1>
-        <p>Welcome to the Gym Membership System, your partner in achieving health and wellness goals.</p>
+        <p>Welcome to the Mankraft Fitness Center, your partner in achieving health and wellness goals.</p>
     </div>
 </div>
 
@@ -12,7 +12,7 @@
         <div class="mission">
             <h2>Our Mission</h2>
             <p>
-                At Gym Membership System, we believe in empowering individuals to lead healthier, happier lives.
+                At Mankraft Fitness Center, we believe in empowering individuals to lead healthier, happier lives.
                 Our mission is to make fitness accessible, enjoyable, and achievable for everyone.
             </p>
         </div>
@@ -83,7 +83,7 @@
     <div class="testimonial-wrapper">
         <!-- Original Testimonials -->
         <div class="testimonial-card">
-            <p>"The Gym Membership System has completely transformed my fitness journey. The trainers are amazing and the community is so supportive!"</p>
+            <p>"The Mankraft Fitness Center has completely transformed my fitness journey. The trainers are amazing and the community is so supportive!"</p>
             <div class="customer-name">- Khairul Akashah</div>
         </div>
         <div class="testimonial-card">
@@ -103,7 +103,7 @@
             <div class="customer-name">- Syed Ilham</div>
         </div>
         <div class="testimonial-card">
-            <p>"The Gym Membership System has completely transformed my fitness journey. The trainers are amazing and the community is so supportive!"</p>
+            <p>"The Mankraft Fitness Center has completely transformed my fitness journey. The trainers are amazing and the community is so supportive!"</p>
             <div class="customer-name">- Paan</div>
         </div>
         <div class="testimonial-card">

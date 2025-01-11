@@ -8,6 +8,9 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
     exit();
 }
 
+// Retrieve admin ID from session
+$admin_id = $_SESSION['admin_id']; // Assuming admin ID is stored in session
+
 // Hardcoded descriptions and benefits
 $packageDescriptions = [
     'Basic' => [
@@ -39,13 +42,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($id) {
         // Update package
-        $stmt = $conn->prepare("UPDATE packages SET name = ?, price = ?, duration = ? WHERE id = ?");
-        $stmt->bind_param("sdii", $name, $price, $duration, $id);
+        $stmt = $conn->prepare("UPDATE packages SET name = ?, price = ?, duration = ?, admin_id = ? WHERE id = ?");
+        $stmt->bind_param("sdiii", $name, $price, $duration, $admin_id, $id);
         $stmt->execute();
     } else {
         // Add new package
-        $stmt = $conn->prepare("INSERT INTO packages (name, price, duration) VALUES (?, ?, ?)");
-        $stmt->bind_param("sdi", $name, $price, $duration);
+        $stmt = $conn->prepare("INSERT INTO packages (name, price, duration, admin_id) VALUES (?, ?, ?, ?)");
+        $stmt->bind_param("sdii", $name, $price, $duration, $admin_id);
         $stmt->execute();
     }
     header('Location: manage_package.php');
@@ -60,10 +63,9 @@ if (isset($_GET['delete'])) {
     exit();
 }
 
-// Fetch all packages
-$packages = $conn->query("SELECT * FROM packages")->fetch_all(MYSQLI_ASSOC);
+// Fetch all packages associated with the logged-in admin
+$packages = $conn->query("SELECT * FROM packages WHERE admin_id = $admin_id")->fetch_all(MYSQLI_ASSOC);
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>

@@ -149,7 +149,7 @@ try {
     <?php endif; ?>
 </div>
 <footer>
-    <p>&copy; <?php echo date("Y"); ?> Gym Membership System. All rights reserved.</p>
+    <p>&copy; <?php echo date("Y"); ?> Mankraft Fitness Center. All rights reserved.</p>
 </footer>
 <!-- Scroll Up Button -->
 <button id="scrollUpBtn" title="Go to top">

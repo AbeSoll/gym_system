@@ -1,6 +1,6 @@
 <header>
     <nav class="navbar">
-        <a href="/gym_system/member/index.php" class="logo">Gym Membership</a>
+        <a href="/gym_system/member/index.php" class="logo">Mankraft Fitness Center</a>
         <div class="hamburger" id="hamburger-menu">
             <span class="bar"></span>
             <span class="bar"></span>

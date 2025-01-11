@@ -62,7 +62,11 @@ CREATE TABLE `admins` (
 --
 
 INSERT INTO `admins` (`id`, `username`, `password`) VALUES
-(1, 'admin', '$2y$10$QJcJW6Qvw8a3q1e7nOsAge6MzkKCjnm5L45wwn8DbQllbwOzpQ6FG');
+(1, 'solehin', '$2a$04$Sn4deUWm5TbNJgMqLwzy3eaZJyI8Z1BZLQEkZ7s60chUtsNdBOpW2'),
+(2, 'azfar', '$2a$04$HRReQNj3v31J.hgebh1GieImRheVLlCTQWV9rdVQDZQxoVWONlTxC'),
+(3, 'hafizuddin', '$2a$04$OOG18bd3V6ZSZIjUKKq2Xu9B.qc1JOTs6VueAx3NicD8TptFhhUJO'),
+(4, 'meor', '$2a$04$kXWmevDhLZhUFKr.sSoDbexiJQeDPZdxUKD14tLzXB3wzINdp2MuW'),
+(5, 'fauzi', '$2a$04$Uu9eYbYqF.vT8xh1PMk.HezFhMyjUaQSwcZxqrSmdNydXObtbL6XG');
 
 -- --------------------------------------------------------
 
@@ -83,15 +87,6 @@ CREATE TABLE `members` (
   `profile_picture` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Dumping data for table `members`
---
-
-INSERT INTO `members` (`id`, `name`, `gender`, `status`, `email`, `password`, `phone`, `address`, `created_at`, `profile_picture`) VALUES
-(4, 'AHMAD', 'male', 'inactive', 'solehinahmad954@gmail.com', '$2y$10$uYF8/jJU5Z9v1yL9GgfcoeVpA6cyjUEQCrnAxigjDm7b/lt9Lsece', '0177587549', 'NO 143 FELCRA KAMPUNG MELAYU BATU 4 PALOH', '2025-01-04 15:14:56', NULL),
-(5, 'ALYSHA', 'female', 'inactive', 'alysha@gmail.com', '$2y$10$tlX4uKb.hyn6CJDRGL3PSeBek9dNvQUz6FQNxVK.u3hEzrtR5FwtW', '01111111111', 'No 143 felcra keramat 86600 kluang johor', '2025-01-05 16:37:19', NULL),
-(6, 'AMRI', 'male', 'active', 'amri123@gmail.com', '$2y$10$FrVzN6X4IR2NwNJ/bjNNzuoWA5KyDxcDnLFpR/2bLqP1XKrlC2OSW', '0125632541', 'No 123 Jalan Mawar Kulai Indah, Bandar Tenggara, 86000 Kluang Johor', '2025-01-05 19:09:11', '677b3b531cef4_1.jpg');
-
 -- --------------------------------------------------------
 
 --
@@ -110,9 +105,6 @@ CREATE TABLE `member_packages` (
 --
 -- Dumping data for table `member_packages`
 --
-
-INSERT INTO `member_packages` (`id`, `member_id`, `package_id`, `start_date`, `end_date`, `status`) VALUES
-(7, 6, 2, '2025-01-06', '2026-01-06', 'active');
 
 --
 -- Triggers `member_packages`
@@ -140,20 +132,12 @@ DELIMITER ;
 
 CREATE TABLE `packages` (
   `id` int(11) NOT NULL,
+  `admin_id` int(11) NOT NULL,
   `name` varchar(255) NOT NULL,
   `price` decimal(10,2) NOT NULL,
   `duration` int(11) NOT NULL COMMENT 'Duration in months',
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `packages`
---
-
-INSERT INTO `packages` (`id`, `name`, `price`, `duration`, `created_at`) VALUES
-(1, 'Basic', 30.00, 1, '2025-01-04 17:33:46'),
-(2, 'Premium', 350.00, 12, '2025-01-04 17:34:39'),
-(3, 'Pro', 180.00, 6, '2025-01-04 17:37:46');
 
 -- --------------------------------------------------------
 
@@ -170,14 +154,6 @@ CREATE TABLE `payments` (
   `bank_name` varchar(255) DEFAULT NULL,
   `payment_date` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `payments`
---
-
-INSERT INTO `payments` (`id`, `member_id`, `package_id`, `payment_status`, `amount`, `bank_name`, `payment_date`) VALUES
-(11, 6, 2, 'canceled', 0.00, NULL, '2025-01-06 02:52:35'),
-(12, 6, 2, 'paid', 350.00, 'RHB Bank', '2025-01-06 02:53:14');
 
 --
 -- Indexes for dumped tables
@@ -209,7 +185,8 @@ ALTER TABLE `member_packages`
 -- Indexes for table `packages`
 --
 ALTER TABLE `packages`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `admin_id` (`admin_id`);
 
 --
 -- Indexes for table `payments`
@@ -270,6 +247,12 @@ ALTER TABLE `member_packages`
 ALTER TABLE `payments`
   ADD CONSTRAINT `payments_ibfk_1` FOREIGN KEY (`member_id`) REFERENCES `members` (`id`),
   ADD CONSTRAINT `payments_ibfk_2` FOREIGN KEY (`package_id`) REFERENCES `packages` (`id`);
+
+--
+-- Constraints for table `packages`
+--
+ALTER TABLE `packages`
+  ADD CONSTRAINT `packages_ibfk_1` FOREIGN KEY (`admin_id`) REFERENCES `admins` (`id`);
 
 DELIMITER $$
 --

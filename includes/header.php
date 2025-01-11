@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gym Membership System</title>
+    <title>Mankraft Fitness Center</title>
     <link rel="stylesheet" href="/gym_system/css/style.css">
     <link rel="stylesheet" href="/gym_system/css/about.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -12,7 +12,7 @@
 <body>
 <header>
     <nav class="navbar">
-        <a href="/gym_system/index.php" class="logo">Gym Membership</a>
+        <a href="/gym_system/index.php" class="logo">Mankraft Fitness Center</a>
         <!-- Animated Hamburger Menu -->
         <button class="hamburger" id="hamburger-menu">
             <span class="bar"></span>

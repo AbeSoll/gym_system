@@ -48,7 +48,7 @@ $packages = $package_query->fetch_all(MYSQLI_ASSOC);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gym Membership Packages</title>
+    <title>Mankraft Fitness Center Packages</title>
     <link rel="stylesheet" href="../css/member.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -132,7 +132,7 @@ $packages = $package_query->fetch_all(MYSQLI_ASSOC);
 <body>
 <?php include 'includes/header.php'; ?><br><br>
 <div class="container">
-    <h1>Gym Membership Packages</h1>
+    <h1>Mankraft Fitness Center Packages</h1>
 
     <!-- Active Package Alert -->
     <?php if ($active_package): ?>

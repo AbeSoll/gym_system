@@ -12,7 +12,7 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'member') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gym Membership System</title>
+    <title>Mankraft Fitness Center</title>
     <link rel="stylesheet" href="../css/about.css">
     <link rel="stylesheet" href="../css/member.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -23,7 +23,7 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'member') {
 <div class="about-hero-section">
     <div class="about-hero-content">
         <h1>About Us</h1>
-        <p>Welcome to the Gym Membership System, your partner in achieving health and wellness goals.</p>
+        <p>Welcome to the Mankraft Fitness Center, your partner in achieving health and wellness goals.</p>
     </div>
 </div>
 
@@ -33,7 +33,7 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'member') {
         <div class="mission">
             <h2>Our Mission</h2>
             <p>
-                At Gym Membership System, we believe in empowering individuals to lead healthier, happier lives.
+                At Mankraft Fitness Center, we believe in empowering individuals to lead healthier, happier lives.
                 Our mission is to make fitness accessible, enjoyable, and achievable for everyone.
             </p>
         </div>
@@ -106,7 +106,7 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'member') {
     <div class="testimonial-wrapper">
         <!-- Original Testimonials -->
         <div class="testimonial-card">
-            <p>"The Gym Membership System has completely transformed my fitness journey. The trainers are amazing and the community is so supportive!"</p>
+            <p>"The Mankraft Fitness Center has completely transformed my fitness journey. The trainers are amazing and the community is so supportive!"</p>
             <div class="customer-name">- Khairul Akashah</div>
         </div>
         <div class="testimonial-card">
@@ -126,7 +126,7 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'member') {
             <div class="customer-name">- Syed Ilham</div>
         </div>
         <div class="testimonial-card">
-            <p>"The Gym Membership System has completely transformed my fitness journey. The trainers are amazing and the community is so supportive!"</p>
+            <p>"The Mankraft Fitness Center has completely transformed my fitness journey. The trainers are amazing and the community is so supportive!"</p>
             <div class="customer-name">- Paan</div>
         </div>
         <div class="testimonial-card">
