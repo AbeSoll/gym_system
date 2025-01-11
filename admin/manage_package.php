@@ -2,14 +2,14 @@
 session_start();
 include '../includes/db.php';
 
-// Redirect if the admin is not logged in
-if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
+// Redirect if the admin (staff) is not logged in
+if (!isset($_SESSION['admin_id'])) {
     header('Location: ../auth/login.php');
     exit();
 }
 
 // Retrieve admin ID from session
-$admin_id = $_SESSION['admin_id']; // Assuming admin ID is stored in session
+$admin_id = $_SESSION['admin_id'];
 
 // Hardcoded descriptions and benefits
 $packageDescriptions = [
@@ -41,12 +41,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $duration = $_POST['duration'];
 
     if ($id) {
-        // Update package
+        // Update package and set the admin_id to the current admin
         $stmt = $conn->prepare("UPDATE packages SET name = ?, price = ?, duration = ?, admin_id = ? WHERE id = ?");
         $stmt->bind_param("sdiii", $name, $price, $duration, $admin_id, $id);
         $stmt->execute();
     } else {
-        // Add new package
+        // Add new package with the current admin's ID
         $stmt = $conn->prepare("INSERT INTO packages (name, price, duration, admin_id) VALUES (?, ?, ?, ?)");
         $stmt->bind_param("sdii", $name, $price, $duration, $admin_id);
         $stmt->execute();
@@ -63,9 +63,14 @@ if (isset($_GET['delete'])) {
     exit();
 }
 
-// Fetch all packages associated with the logged-in admin
-$packages = $conn->query("SELECT * FROM packages WHERE admin_id = $admin_id")->fetch_all(MYSQLI_ASSOC);
+// Fetch all packages with their associated admin names
+$packages = $conn->query("
+    SELECT packages.*, admins.username AS admin_name 
+    FROM packages 
+    JOIN admins ON packages.admin_id = admins.id
+")->fetch_all(MYSQLI_ASSOC);
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -196,34 +201,38 @@ $packages = $conn->query("SELECT * FROM packages WHERE admin_id = $admin_id")->f
     </nav>
 </header>
 <div class="dashboard-container">
-<aside class="sidebar" id="sidebar">
-    <ul><br>
-        <li><a href="dashboard.php"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
-        <li><a href="view_members.php"><i class="fas fa-users"></i> List Members</a></li>
-        <li><a href="payments.php"><i class="fas fa-dollar-sign"></i> View Payments</a></li>
-        <li><a href="manage_package.php"><i class="fas fa-cubes"></i> Manage Packages</a></li>
-        <li><a href="../auth/logout.php"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
-    </ul>
-</aside><br>
-<div class="container_package">
-    <h2>Manage Membership Packages</h2>
-    <button class="btn btn-add" onclick="showForm()">+ Add Package</button>
+    <aside class="sidebar" id="sidebar">
+        <ul><br>
+            <li><a href="dashboard.php"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+            <li><a href="view_members.php"><i class="fas fa-users"></i> List Members</a></li>
+            <li><a href="payments.php"><i class="fas fa-dollar-sign"></i> View Payments</a></li>
+            <li><a href="manage_package.php"><i class="fas fa-cubes"></i> Manage Packages</a></li>
+            <li><a href="../auth/logout.php"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+        </ul>
+    </aside><br>
+    <div class="container_package">
+        <h2>Manage Membership Packages</h2>
+        <button class="btn btn-add" onclick="showForm()">+ Add Package</button>
 
-    <?php foreach ($packages as $package): ?>
-        <div class="package">
-            <h3><?php echo htmlspecialchars($package['name']); ?></h3>
-            <p><strong>Price:</strong> RM<?php echo number_format($package['price'], 2); ?></p>
-            <p><strong>Duration:</strong> <?php echo $package['duration']; ?> month(s)</p>
-            <p><strong>Benefits:</strong></p>
-            <ul>
-                <?php foreach ($packageDescriptions[$package['name']] as $benefit): ?>
-                    <li><?php echo htmlspecialchars($benefit); ?></li>
-                <?php endforeach; ?>
-            </ul>
-            <button class="btn btn-edit" onclick="showForm(<?php echo htmlspecialchars(json_encode($package)); ?>)">Edit</button>
-            <button class="btn btn-delete" onclick="showDeletePopup(<?php echo $package['id']; ?>)">Delete</button>
-        </div>
-    <?php endforeach; ?>
+        <?php foreach ($packages as $package): ?>
+            <div class="package">
+                <h3><?php echo htmlspecialchars($package['name']); ?></h3>
+                <p><strong>Price:</strong> RM<?php echo number_format($package['price'], 2); ?></p>
+                <p><strong>Duration:</strong> <?php echo $package['duration']; ?> month(s)</p>
+                <p><strong>Last Updated By:</strong> <?php echo htmlspecialchars($package['admin_name']); ?></p>
+                <p><strong>Benefits:</strong></p>
+                <ul>
+                    <?php foreach ($packageDescriptions[$package['name']] as $benefit): ?>
+                        <li><?php echo htmlspecialchars($benefit); ?></li>
+                    <?php endforeach; ?>
+                </ul>
+                <div class="actions">
+                    <button class="btn btn-edit" onclick="showForm(<?php echo htmlspecialchars(json_encode($package)); ?>)">Edit</button>
+                    <button class="btn btn-delete" onclick="showDeletePopup(<?php echo $package['id']; ?>)">Delete</button>
+                </div>
+            </div>
+        <?php endforeach; ?>
+    </div>
 </div>
 <?php include '../includes/footer.php'; ?>
 <!-- Popup for Adding/Editing Packages -->

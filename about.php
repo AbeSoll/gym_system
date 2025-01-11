@@ -125,18 +125,15 @@
     </div>
 </div>
 
+<!-- Scroll Up Button -->
+<button id="scrollUpBtn" title="Go to top">
+    <i class="fas fa-chevron-up"></i> <!-- Font Awesome icon -->
+</button>
 <div class="about-footer">
     <h2>Ready to Join Us?</h2>
     <p>Take the first step toward your fitness journey today. Join our community and achieve your goals!</p>
     <a href="auth/register.php" class="btn-primary">Sign Up Now</a>
 </div>
-
-<!-- Scroll Up Button -->
-<button id="scrollUpBtn" title="Go to top">
-    <i class="fas fa-chevron-up"></i> <!-- Font Awesome icon -->
-</button>
-
-
 <script>
     const testimonialWrapper = document.querySelector('.testimonial-wrapper');
     testimonialWrapper.addEventListener('mouseenter', () => {
