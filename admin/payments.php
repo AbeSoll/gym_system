@@ -228,7 +228,7 @@ try {
                                 <td><?php echo $counter++; ?></td>
                                 <td><?php echo $row['name']; ?></td>
                                 <td><?php echo $row['email']; ?></td>
-                                <td><?php echo $row['amount'] > 0 ? "RM" . number_format($row['amount'], 2) : "N/A"; ?></td>
+                                <td><?php echo $row['amount'] > 0 ? number_format($row['amount'], 2) : "N/A"; ?></td>
                                 <td class="status-<?php echo $row['payment_status']; ?>"><?php echo ucfirst($row['payment_status']); ?></td>
                                 <td><?php echo $row['payment_date']; ?></td>
                                 <td><?php echo $row['start_date'] ?: 'N/A'; ?></td>

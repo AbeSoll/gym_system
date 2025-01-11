@@ -34,8 +34,8 @@ $monthlyPaymentsQuery = $conn->query("
     SELECT MONTHNAME(payment_date) AS month, SUM(amount) AS total 
     FROM payments 
     WHERE payment_status = 'paid'
-    GROUP BY MONTH(payment_date)
-    ORDER BY MONTH(payment_date)
+    GROUP BY MONTH(payment_date), YEAR(payment_date)
+    ORDER BY YEAR(payment_date), MONTH(payment_date)
 ");
 $monthlyPaymentsData = [];
 while ($row = $monthlyPaymentsQuery->fetch_assoc()) {
@@ -172,8 +172,9 @@ $recentActiveMembers = $recentMembersQuery->fetch_all(MYSQLI_ASSOC);
                         LIMIT 5
                     ");
                     while ($member = $recentMembersQuery->fetch_assoc()) {
-                        echo "<li><strong>{$member['name']}</strong> - {$member['email']}<br><small>Membership Start: {$member['start_date']}</small></li>";
-                    }
+                        echo "<li><strong>{$member['name']}</strong> - {$member['email']}<br>
+                              <small>Membership Start: " . date("F j, Y", strtotime($member['start_date'])) . "</small></li>";
+                    }                    
                     ?>
                 </ul>
             </div>
