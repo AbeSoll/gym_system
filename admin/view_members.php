@@ -16,29 +16,67 @@ $offset = ($page - 1) * $limit;
 $sort_column = isset($_GET['sort']) ? $_GET['sort'] : 'name';
 $sort_order = isset($_GET['order']) && $_GET['order'] === 'desc' ? 'desc' : 'asc';
 
+// Build the query for members with their statuses
 $query = "
     SELECT 
-        m.*, 
-        IFNULL(mp.status, 'inactive') AS membership_status 
+        m.id, 
+        m.name, 
+        m.email, 
+        m.phone, 
+        m.address,
+        CASE 
+            WHEN EXISTS (
+                SELECT 1 
+                FROM member_packages mp 
+                WHERE mp.member_id = m.id 
+                AND mp.status = 'active'
+            ) THEN 'active'
+            WHEN EXISTS (
+                SELECT 1 
+                FROM member_packages mp 
+                WHERE mp.member_id = m.id 
+                AND mp.status = 'expired'
+            ) THEN 'expired'
+            ELSE 'inactive'
+        END AS membership_status
     FROM members m
-    LEFT JOIN member_packages mp ON m.id = mp.member_id AND mp.status = 'active'
     WHERE (m.name LIKE '%$search%' OR m.email LIKE '%$search%')
 ";
+
+// Add filter for the status
 if ($filter) {
-    $query .= " AND mp.status = '$filter'";
+    $query .= " HAVING membership_status = '$filter'";
 }
+
 $query .= " ORDER BY $sort_column $sort_order LIMIT $limit OFFSET $offset";
 $result = $conn->query($query);
 
 // Get total number of members for pagination
 $total_query = "
-    SELECT COUNT(*) as total 
-    FROM members m
-    LEFT JOIN member_packages mp ON m.id = mp.member_id AND mp.status = 'active'
-    WHERE (m.name LIKE '%$search%' OR m.email LIKE '%$search%')
-";
+    SELECT COUNT(*) as total FROM (
+        SELECT 
+            m.id,
+            CASE 
+                WHEN EXISTS (
+                    SELECT 1 
+                    FROM member_packages mp 
+                    WHERE mp.member_id = m.id 
+                    AND mp.status = 'active'
+                ) THEN 'active'
+                WHEN EXISTS (
+                    SELECT 1 
+                    FROM member_packages mp 
+                    WHERE mp.member_id = m.id 
+                    AND mp.status = 'expired'
+                ) THEN 'expired'
+                ELSE 'inactive'
+            END AS membership_status
+        FROM members m
+        WHERE (m.name LIKE '%$search%' OR m.email LIKE '%$search%')
+    ) AS status_filter";
+
 if ($filter) {
-    $total_query .= " AND mp.status = '$filter'";
+    $total_query .= " WHERE membership_status = '$filter'";
 }
 $total_result = $conn->query($total_query);
 $total_members = $total_result->fetch_assoc()['total'];
@@ -143,6 +181,10 @@ $next_order = $sort_order === 'asc' ? 'desc' : 'asc';
             color: red;
             font-weight: bold;
         }
+        .status-expired { 
+            color: orange; 
+            font-weight: bold; 
+        }
     </style>
 </head>
 <body>
@@ -180,7 +222,8 @@ $next_order = $sort_order === 'asc' ? 'desc' : 'asc';
                     <select name="status">
                         <option value="">All Status</option>
                         <option value="active" <?php echo $filter === 'active' ? 'selected' : ''; ?>>Active</option>
-                        <option value="expired" <?php echo $filter === 'inactive' ? 'selected' : ''; ?>>Inactive</option>
+                        <option value="inactive" <?php echo $filter === 'inactive' ? 'selected' : ''; ?>>Inactive</option>
+                        <option value="expired" <?php echo $filter === 'expired' ? 'selected' : ''; ?>>Expired</option>
                     </select>
                     <button type="submit"><i class="fas fa-search"></i> Search</button>
                 </form>
@@ -220,7 +263,7 @@ $next_order = $sort_order === 'asc' ? 'desc' : 'asc';
                                 <td><?php echo $row['email']; ?></td>
                                 <td><?php echo $row['phone']; ?></td>
                                 <td><?php echo $row['address']; ?></td>
-                                <td class="<?php echo $row['membership_status'] === 'active' ? 'status-active' : 'status-inactive'; ?>">
+                                <td class="status-<?php echo $row['membership_status']; ?>">
                                     <?php echo ucfirst($row['membership_status']); ?>
                                 </td>
                             </tr>

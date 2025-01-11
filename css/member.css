@@ -307,7 +307,7 @@ footer {
 }
 
 /* Mobile Devices (Below 768px) */
-@media (max-width: 768px) {
+@media (max-width: 900px) {
     /* Hero Section */
     .hamburger {
         display: flex; /* Display hamburger on tablets and smaller screens */
