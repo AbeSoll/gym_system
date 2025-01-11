@@ -74,7 +74,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <body>
     <header>
         <nav class="navbar">
-            <a href="/gym_system/index.php" class="logo">Gym Membership</a>
+            <a href="/gym_system/index.php" class="logo">Mankraft Fitness Center</a>
             <button class="hamburger" id="hamburger-menu">
                 <span class="bar"></span>
                 <span class="bar"></span>
