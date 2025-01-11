@@ -127,11 +127,11 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'member') {
         </div>
         <div class="testimonial-card">
             <p>"The Mankraft Fitness Center has completely transformed my fitness journey. The trainers are amazing and the community is so supportive!"</p>
-            <div class="customer-name">- Paan</div>
+            <div class="customer-name">- Farhan</div>
         </div>
         <div class="testimonial-card">
             <p>"I love the variety of equipment and classes available. It's the best gym experience I've ever had."</p>
-            <div class="customer-name">- Ipan</div>
+            <div class="customer-name">- Irfan</div>
         </div>
         <div class="testimonial-card">
             <p>"Joining this gym was the best decision I've made for my health. The holistic approach really works for me."</p>
